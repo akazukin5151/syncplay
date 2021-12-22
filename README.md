@@ -21,6 +21,20 @@
 # SOFTWARE.
 -->
 
+# Fork
+
+This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli) using mpv.
+
+Installation should be the same and platform support should remain unchanged.
+
+Usage instructions:
+
+0. Install `webtorrent-cli` using the link above
+1. Open Syncplay and change `Media player settings` -> `Path to media player` to the location of your `webtorrent` script
+2. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
+3. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
+4. Wait a while for it to buffer
+
 # Syncplay
 ![GitHub Actions build status](https://github.com/Syncplay/syncplay/workflows/Build/badge.svg)
 
