@@ -25,7 +25,7 @@
 
 This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli) using mpv.
 
-Installation should be the same and platform support should remain unchanged.
+Installation should be the same and platform support should remain unchanged, but only mpv is supported (though it's possible to support whatever both `webtorrent` and `Syncplay` both supports).
 
 Usage instructions:
 
