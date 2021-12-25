@@ -3,6 +3,7 @@ import time
 import threading
 import subprocess
 import ast
+from unittest.mock import Mock
 
 from syncplay import constants
 from syncplay.players.mpv import MpvPlayer
@@ -248,6 +249,7 @@ class WebtorrentMpvPlayer(MpvPlayer):
                     env['PATH'] = python_executable + ':' + env['PATH']
                     env['PYTHONPATH'] = pythonPath
             self.env = env
+            self.mpvpipe = Mock()
 
         def late_init(self, filepath):
             '''Fork: Moved launch process code from __init__ to here.
