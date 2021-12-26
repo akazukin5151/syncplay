@@ -77,11 +77,12 @@ class WebtorrentIinaPlayer(IinaPlayer):
         self.lastLoadedTime = time.time()
         self._listener.setDaemon(True)
         self._listener.start()
-        self._client.initPlayer(self)
         # from _preparePlayer
         for key, value in constants.IINA_PROPERTIES.items():
             self._setProperty(key, value)
         self._listener.sendLine(["load-script", findResourcePath("syncplayintf.lua")])
+        # end from _preparePlayer
+        self._client.initPlayer(self)
 
     def openFile(self, filePath, resetPosition=False):
         '''Fork: add debug message because it takes time to load and buffer'''
@@ -140,6 +141,13 @@ class WebtorrentIinaPlayer(IinaPlayer):
         except AttributeError as e:
             self._client.ui.showErrorMessage("Could not load mpv: " + str(e))
             return
+        self._durationAsk = threading.Event()
+        self._filenameAsk = threading.Event()
+        self._pathAsk = threading.Event()
+
+        self._positionAsk = threading.Event()
+        self._pausedAsk = threading.Event()
+        self._preparePlayer()
 
     class __Listener(threading.Thread):
         '''Fork: exact copy of __Listener in MpvPlayer except for __init__ and
@@ -217,7 +225,7 @@ class WebtorrentIinaPlayer(IinaPlayer):
                 # after opening mpv
                 webtorrent_args = {
                     'filepath': filepath,
-                    'player_args_dict': {'script': self.mpv_arguments['script']}
+                    'player_args_dict': {}
                 }
                 self.mpvpipe = self.playerIPCHandler(mpv_location=self.playerPath, ipc_socket=socket, loglevel="info", log_handler=self.__playerController.mpv_log_handler, env=env, start_mpv=True, **webtorrent_args)
             except Exception as e:

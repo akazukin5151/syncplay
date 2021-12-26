@@ -1,3 +1,7 @@
+import os
+import time
+import subprocess
+
 from syncplay.players.ipc_iina import IINA, IINAProcess
 from syncplay.vendor.python_mpv_jsonipc.python_mpv_jsonipc import log, MPVError
 
@@ -18,14 +22,30 @@ class WEBTORRENT_IINA(IINA):
             raise MPVError("IINA process retry limit reached.")
 
 class WEBTORRENT_IINAProcess(IINAProcess):
-#    def _get_arglist(self, exec_location, **kwargs):
-#        args = [exec_location]
-#        args.append('--no-stdin')
-#        args.append(resourcespath + 'iina-bkg.png')
-#        self._set_default(kwargs, "mpv-input-ipc-server", self.ipc_socket)
-#        args.extend("--{0}={1}".format(v[0].replace("_", "-"), self._mpv_fmt(v[1]))
-#                    for v in kwargs.items())
-#        return args
+    def _start_process(self, ipc_socket, args, env):
+        '''Exactly the same except for shell=True for some reason'''
+        self.process = subprocess.Popen(args, env=env, shell=True)
+        ipc_exists = False
+        # IINA needs more time to launch
+        time.sleep(5)
+        for _ in range(100): # Give MPV 10 seconds to start.
+            time.sleep(0.1)
+            self.process.poll()
+            if os.path.exists(ipc_socket):
+                ipc_exists = True
+                log.debug("Found IINA socket.")
+                break
+            if self.process.returncode != 0: # iina-cli returns immediately after its start
+                log.error("IINA failed with returncode {0}.".format(self.process.returncode))
+                break
+        else:
+            self.process.terminate()
+            raise MPVError("IINA start timed out.")
+
+        # returncode is still None for me, even when ipc exists
+        if not ipc_exists or self.process.returncode is not None:
+            self.process.terminate()
+            raise MPVError("IINA not started.")
 
     def _get_arglist(self, exec_location, **kwargs):
         '''Adapt to shell=True and the download command'''
@@ -34,7 +54,8 @@ class WEBTORRENT_IINAProcess(IINAProcess):
             '--quiet'
         ]
         player_args_dict = kwargs['player_args_dict']
-        self._set_default(player_args_dict, "input_ipc_server", self.ipc_socket)
+        # IINA appends mpv based commands with `mpv`
+        self._set_default(player_args_dict, "mpv-input-ipc-server", self.ipc_socket)
         player_args = ' '.join(
             ["--{0}={1}".format(v[0].replace("_", "-"), self._mpv_fmt(v[1]))
              for v in player_args_dict.items()]
