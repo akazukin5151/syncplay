@@ -114,6 +114,7 @@ class WebtorrentMpvPlayer(MpvPlayer):
         '''
         self._clearFileLoaded()
         self._listener.late_init(filePath)
+        self.setPaused(True)
         self.fileLoaded = True
         self.lastLoadedTime = time.time()
         self._listener.setDaemon(True)
