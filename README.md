@@ -25,17 +25,28 @@
 
 This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli) using mpv.
 
-Installation should be the same and platform support should remain unchanged, but only mpv is supported (though it's possible to support whatever both `webtorrent` and `Syncplay` both supports).
+Only mpv is supported right now. Support for IINA coming soon.
 
-Usage instructions:
+## Install instructions for macOS
 
-0. Install `webtorrent-cli` using the link above
-1. Open Syncplay and change `Media player settings` -> `Path to media player` to the location of your `webtorrent` script
-2. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
-3. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
-4. Wait a while for it to buffer
+- Download the `.dmg` in the latest successful CI action and install as normal
 
-Focusing on Linux and macOS for now because my client uses a Mac. I use Linux and have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not bunch benefit in this tight bundling for Linux. No idea about Windows support
+## Install instructions for Linux
+
+1. Install `webtorrent-cli` using the link above
+
+## Usage instructions
+
+1. Open Syncplay, tick the "Torrent mode" checkbox
+2. (Linux only) Fill the path to the webtorrent script you installed above
+3. Fill in the path to mpv
+    - macOS: use `/Applications/mpv.app/Contents/MacOS/mpv`
+4. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
+5. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
+    - Can also paste in the magnet in the configuration before step 4
+6. Wait a while for it to buffer
+
+Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. No idea about Windows support
 
 # Syncplay
 ![GitHub Actions build status](https://github.com/Syncplay/syncplay/workflows/Build/badge.svg)
