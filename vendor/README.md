@@ -1,5 +1,3 @@
-Note: this is all for testing and the Syncplay app does *not* yet use those dependencies. Follow the instructions in the README
-
 # webtorrent-cli fork
 
 ## Setup
