@@ -494,9 +494,15 @@ class ConfigDialog(QtWidgets.QDialog):
         self.config['torrentMode'] = self.torrentModeCheckbox.isChecked()
         if isMacOS():
             self.config['webtorrentPath'] = None
+            if self.mac_player_combobox.currentText() == 'mpv':
+                self.config['playerPath'] = constants.MPV_PATHS[2]
+            elif self.mac_player_combobox.currentText() == 'iina':
+                self.config['playerPath'] = constants.IINA_PATHS[0]
+            else:
+                self.config['playerPath'] = None
         else:
             self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
-        self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
+            self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.mediapathTextbox.text() == "":
             self.config['file'] = None
@@ -626,7 +632,9 @@ class ConfigDialog(QtWidgets.QDialog):
         # webtorrent is bundled into the mac app, so mac users do not need
         # to specify the path
         if isMacOS():
-            return
+            return self.mac_player_combobox.setEnabled(
+                self.torrentModeCheckbox.isChecked()
+            )
         if not self.torrentModeCheckbox.isChecked():
             return self.webtorrentPathCombobox.setEnabled(False)
         self.webtorrentPathCombobox.setEnabled(True)
@@ -721,8 +729,16 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediaplayerSettingsGroup = QtWidgets.QGroupBox(getMessage("media-setting-title"))
 
         # XXX: no translation for these labels
-        if not isMacOS():
+        if isMacOS():
             # path is bundled inside the .app in macOS, so no need to specify
+            # webtorrent path
+            # but can choose the player (iina or mpv)
+            self.mac_player_combobox = QtWidgets.QComboBox(self)
+            self.mac_player_combobox.setEnabled(False)
+            self.mac_player_combobox.addItem('iina')
+            self.mac_player_combobox.addItem('mpv')
+            self.mac_player_label = QLabel('Media player to use:', self)
+        else:
             self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
             self.webtorrentPathCombobox.setEnabled(False)
             self.webtorrentPathLabel = QLabel('Path to webtorrent:', self)
@@ -768,20 +784,22 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
         self.mediaplayerSettingsLayout.addWidget(self.torrentModeCheckbox, 0, 0, 1, 2)
-        if not isMacOS():
+        if isMacOS():
+            self.mediaplayerSettingsLayout.addWidget(self.mac_player_combobox, 1, 2, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.mac_player_label, 1, 0, 1, 1)
+        else:
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, 1, 2, 1, 1)
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, 1, 0, 1, 1)
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, 1, 3, 1, 1)
-        row = 1 if isMacOS() else 2
-        self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, row, 0, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, row, 1, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, row, 2, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, row, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, row + 1, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, row + 1, 2, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, row + 1, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, row + 2, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, row + 2, 2, 1, 2)
+            self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, 2, 0, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, 2, 1, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, 2, 2, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, 2, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, 3, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, 3, 2, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, 3, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, 4, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, 4, 2, 1, 2)
         self.mediaplayerSettingsLayout.setSpacing(10)
         self.mediaplayerSettingsGroup.setLayout(self.mediaplayerSettingsLayout)
 
