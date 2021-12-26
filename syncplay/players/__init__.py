@@ -21,4 +21,10 @@ except ImportError:
 
 
 def getAvailablePlayers():
-    return [MPCHCAPIPlayer, MpvPlayer, WebtorrentMpvPlayer, MpvnetPlayer, VlcPlayer, MpcBePlayer, MplayerPlayer, IinaPlayer]
+    return [MPCHCAPIPlayer, MpvPlayer, MpvnetPlayer, VlcPlayer, MpcBePlayer, MplayerPlayer, IinaPlayer]
+
+def getAvailableTorrentPlayers():
+    return [WebtorrentMpvPlayer]
+
+def getAllAvailablePlayers():
+    return getAvailablePlayers() + getAvailableTorrentPlayers()

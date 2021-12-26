@@ -31,6 +31,8 @@ class ConfigurationGetter(object):
             "room": "",
             "roomList": [],
             "password": None,
+            "torrentMode": None,
+            "webtorrentPath": None,
             "playerPath": None,
             "perPlayerArguments": None,
             "mediaSearchDirectories": None,
@@ -107,6 +109,7 @@ class ConfigurationGetter(object):
             "host",
             "port",
             "room",
+            "torrentMode",
             "playerPath",
             "playerClass",
         ]
@@ -185,8 +188,8 @@ class ConfigurationGetter(object):
         self._iniStructure = {
             "server_data": ["host", "port", "password"],
             "client_settings": [
-                "name", "room", "roomList", "playerPath",
-                "perPlayerArguments", "slowdownThreshold",
+                "name", "room", "roomList", "torrentMode", "webtorrentPath",
+                "playerPath", "perPlayerArguments", "slowdownThreshold",
                 "rewindThreshold", "fastforwardThreshold",
                 "slowOnDesync", "rewindOnDesync",
                 "fastforwardOnDesync", "dontSlowDownWithMe",
@@ -220,7 +223,7 @@ class ConfigurationGetter(object):
                 "lastCheckedForUpdates"]
         }
 
-        self._playerFactory = PlayerFactory()
+        self._playerFactory = None
 
     def _validateArguments(self):
         if self._config['resetConfig']:
@@ -275,14 +278,32 @@ class ConfigurationGetter(object):
             if not match:
                 self._config[key] = "#FFFFFF"
 
+        # validate webtorrentPath; not required but doesn't fit into
+        # any other section above
+        if self._config['torrentMode'] is True:
+            # macOS does does not need to configure this option,
+            # so it will remain as None
+            if not isMacOS() and 'webtorrent' not in self._config['webtorrentPath']:
+                raise InvalidConfigValue('Webtorrent path name must include "webtorrent"')
+
         for key in self._required:
+            if key == 'torrentMode' and self._config[key] is not None:
+                self._playerFactory = PlayerFactory(self._config)
             if key == "playerPath":
                 player = None
                 if self._config["playerPath"]:
+                    if self._playerFactory is None:
+                        self._playerFactory = PlayerFactory(self._config)
                     player = self._playerFactory.getPlayerByPath(self._config["playerPath"])
                 if player:
                     self._config["playerClass"] = player
                 else:
+                    # Raise a different message depending on torrentMode
+                    # XXX: not translated
+                    if self._config['torrentMode'] is not None and self._config['torrentMode'] is True:
+                        raise InvalidConfigValue(
+                            "Player path is not set properly for torrent mode. Supported players are: mpv"
+                        )
                     raise InvalidConfigValue(getMessage("player-path-config-error"))
                 playerPathErrors = player.getPlayerPathErrors(
                     self._config["playerPath"], self._config['file'] if self._config['file'] else None)
@@ -416,6 +437,8 @@ class ConfigurationGetter(object):
         else:
             from syncplay.ui.GuiConfiguration import GuiConfiguration
             gc = GuiConfiguration(self._config, error=error)
+            if self._playerFactory is None:
+                self._playerFactory = PlayerFactory(self._config)
             gc.setAvailablePaths(self._playerFactory.getAvailablePlayerPaths())
             gc.run()
             return gc.getProcessedConfiguration()

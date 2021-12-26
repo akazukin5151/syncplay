@@ -509,3 +509,6 @@ class RandomStringGenerator(object):
 
 class NotControlledRoom(Exception):
     pass
+
+def parse_bool(bs: str) -> bool:
+    return bs == 'True' or bs is True

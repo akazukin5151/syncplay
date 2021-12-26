@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath
+from syncplay.utils import resourcespath, posixresourcespath, parse_bool
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
@@ -57,7 +57,8 @@ class GetPlayerIconThread(threading.Thread, QtCore.QObject):
     daemon = True
     done = QtCore.Signal(str, str)
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         threading.Thread.__init__(self, name='GetPlayerIcon')
         QtCore.QObject.__init__(self)
         self.condvar = threading.Condition()
@@ -81,7 +82,7 @@ class GetPlayerIconThread(threading.Thread, QtCore.QObject):
             self.condvar.release()
 
             self.done.emit('spinner.mng', '')
-            iconpath = PlayerFactory().getPlayerIconByPath(playerpath)
+            iconpath = PlayerFactory(self.config).getPlayerIconByPath(playerpath)
             self.done.emit(iconpath, playerpath)
 
 
@@ -211,7 +212,7 @@ class ConfigDialog(QtWidgets.QDialog):
 
             else:
                 if not os.path.isfile(playerpath):
-                    expandedpath = PlayerFactory().getExpandedPlayerPathByPath(playerpath)
+                    expandedpath = PlayerFactory(self.config).getExpandedPlayerPathByPath(playerpath)
                     if expandedpath is not None and os.path.isfile(expandedpath):
                         playerpath = expandedpath
 
@@ -282,7 +283,7 @@ class ConfigDialog(QtWidgets.QDialog):
         setLanguage(str(self.languageCombobox.itemData(self.languageCombobox.currentIndex())))
         QtWidgets.QMessageBox.information(self, "Syncplay", getMessage("language-changed-msgbox-label"))
 
-    def browsePlayerpath(self):
+    def browseComboboxPath(self, combobox):
         options = QtWidgets.QFileDialog.Options()
         defaultdirectory = ""
         browserfilter = "All files (*)"
@@ -341,7 +342,7 @@ class ConfigDialog(QtWidgets.QDialog):
                 except IndexError:  # whoops, looks like this .app doesn't contain a executable file at all
                     pass
 
-            self.executablepathCombobox.setEditText(os.path.normpath(fileName))
+            combobox.setEditText(os.path.normpath(fileName))
 
     def loadLastUpdateCheckDate(self):
         settings = QSettings("Syncplay", "Interface")
@@ -490,6 +491,8 @@ class ConfigDialog(QtWidgets.QDialog):
             self.config['host'] = self.config['host'].replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
         else:
             self.config['host'] = None
+        self.config['torrentMode'] = self.torrentModeCheckbox.isChecked()
+        self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.mediapathTextbox.text() == "":
@@ -616,6 +619,16 @@ class ConfigDialog(QtWidgets.QDialog):
             if hasattr(widget, 'objectName') and widget.objectName() and widget.objectName() in subwidgets:
                 widget.setDisabled(not parentwidget.isChecked())
 
+    def torrentModeCheckboxToggled(self, config):
+        # webtorrent is bundled into the mac app, so mac users do not need
+        # to specify the path
+        if not self.torrentModeCheckbox.isChecked():
+            return self.webtorrentPathCombobox.setEnabled(False)
+        if not isMacOS():
+            self.webtorrentPathCombobox.setEnabled(True)
+            self.webtorrentPathCombobox.setEditable(True)
+            self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
+
     def addBasicTab(self):
         config = self.config
         playerpaths = self.playerpaths
@@ -702,6 +715,24 @@ class ConfigDialog(QtWidgets.QDialog):
         self.playerargsLabel = QLabel(getMessage("player-arguments-label"), self)
 
         self.mediaplayerSettingsGroup = QtWidgets.QGroupBox(getMessage("media-setting-title"))
+
+        # XXX: no translation for these labels
+        if not isMacOS():
+            # path is bundled inside the .app in macOS, so no need to specify
+            self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
+            self.webtorrentPathCombobox.setEnabled(False)
+            self.webtorrentPathLabel = QLabel('Path to webtorrent:', self)
+            self.webtorrentbrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
+            self.webtorrentbrowseButton.clicked.connect(
+                lambda: self.browseComboboxPath(self.webtorrentPathCombobox)
+            )
+        self.torrentModeCheckbox = QCheckBox("Torrent mode")
+        self.torrentModeCheckbox.toggled.connect(
+            lambda: self.torrentModeCheckboxToggled(config)
+        )
+        self.torrentModeCheckbox.setChecked(parse_bool(config['torrentMode']))
+        self.torrentModeCheckboxToggled(config)
+
         self.executableiconImage = QtGui.QImage()
         self.executableiconLabel = QLabel(self)
         self.executableiconLabel.setFixedWidth(16)
@@ -714,7 +745,9 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.executablepathLabel = QLabel(getMessage("executable-path-label"), self)
         self.executablebrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
-        self.executablebrowseButton.clicked.connect(self.browsePlayerpath)
+        self.executablebrowseButton.clicked.connect(
+            lambda: self.browseComboboxPath(self.executablepathCombobox)
+        )
         self.mediapathTextbox = QLineEdit(config['file'], self)
         self.mediapathLabel = QLabel(getMessage("media-path-label"), self)
         self.mediabrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
@@ -730,15 +763,21 @@ class ConfigDialog(QtWidgets.QDialog):
         self.playerargsTextbox.setObjectName(constants.LOAD_SAVE_MANUALLY_MARKER + "player-arguments")
 
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
-        self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, 0, 0, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, 0, 1, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, 0, 2, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, 0, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, 1, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, 1, 2, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, 1, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, 2, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, 2, 2, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.torrentModeCheckbox, 0, 0, 1, 2)
+        if not isMacOS():
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, 1, 2, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, 1, 0, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, 1, 3, 1, 1)
+        row = 1 if isMacOS() else 2
+        self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, row, 0, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, row, 1, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, row, 2, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, row, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, row + 1, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, row + 1, 2, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, row + 1, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, row + 2, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, row + 2, 2, 1, 2)
         self.mediaplayerSettingsLayout.setSpacing(10)
         self.mediaplayerSettingsGroup.setLayout(self.mediaplayerSettingsLayout)
 
@@ -1399,7 +1438,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.publicServers = None
         self.publicServerAddresses = []
 
-        self._playerProbeThread = GetPlayerIconThread()
+        self._playerProbeThread = GetPlayerIconThread(self.config)
         self._playerProbeThread.done.connect(self._updateExecutableIcon)
         self._playerProbeThread.start()
 

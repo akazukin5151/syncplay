@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import threading
 import subprocess
@@ -37,42 +38,18 @@ class WebtorrentMpvPlayer(MpvPlayer):
             client.ui.showDebugMessage(
                 "This version of mpv is not known to be compatible with changing the OSC visibility. "
                 "Please use mpv >=0.28.0.")
-        return WebtorrentMpvPlayer(client, WebtorrentMpvPlayer.getExpandedPath(playerPath), filePath, args)
 
-    @staticmethod
-    def getDefaultPlayerPathsList():
-        '''Fork: rename MpvPlayer -> WebtorrentMpvPlayer'''
-        l = []
-        for path in constants.MPV_PATHS:
-            p = WebtorrentMpvPlayer.getExpandedPath(path)
-            if p:
-                l.append(p)
-        return l
+        # "player" path is actually webtorrent (which uses mpv)
+        if isMacOS():
+            cwd = os.getcwd()
+            # os.getcwd() == '/Applications/Syncplay.app/Contents/Resources'
+            node_path = os.path.join(cwd, 'node', 'bin', 'node')
+            webtorrent_path = os.path.join(cwd, 'webtorrent-cli', 'bin', 'cmd.js')
+            playerPath = f'{node_path} {webtorrent_path}'
+        else:
+            playerPath = client._config['webtorrentPath']
 
-    @staticmethod
-    def isValidPlayerPath(path):
-        '''Fork: Check for webtorrent instead of mpv'''
-        if "webtorrent" in path and WebtorrentMpvPlayer.getExpandedPath(path):
-            return True
-        return False
-
-    @staticmethod
-    def getExpandedPath(playerPath):
-        '''Fork: rename mpv -> webtorrent'''
-        if not os.path.isfile(playerPath):
-            # No idea if the windows version has the exe extension
-            if os.path.isfile(playerPath + "webtorrent.exe"):
-                playerPath += "webtorrent.exe"
-                return playerPath
-            elif os.path.isfile(playerPath + "\\webtorrent.exe"):
-                playerPath += "\\webtorrent.exe"
-                return playerPath
-        if os.access(playerPath, os.X_OK):
-            return playerPath
-        for path in os.environ['PATH'].split(':'):
-            path = os.path.join(os.path.realpath(path), playerPath)
-            if os.access(path, os.X_OK):
-                return path
+        return WebtorrentMpvPlayer(client, playerPath, filePath, args)
 
     def displayMessage(self, message, duration=(constants.OSD_DURATION * 1000), OSDType=constants.OSD_NOTIFICATION,
                        mood=constants.MESSAGE_NEUTRAL):
