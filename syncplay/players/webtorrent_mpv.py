@@ -18,6 +18,7 @@ class WebtorrentMpvPlayer(MpvPlayer):
     def run(client, playerPath, filePath, args):
         '''Fork: renames MpvPlayer -> WebtorrentMpvPlayer.
         Important because this calls __init__
+        Changes "player" path to webtorrent
         '''
         try:
             ver = WebtorrentMpvPlayer.RE_VERSION.search(subprocess.check_output([playerPath, '--version']).decode('utf-8'))
