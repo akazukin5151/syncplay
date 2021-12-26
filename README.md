@@ -35,6 +35,8 @@ Usage instructions:
 3. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
 4. Wait a while for it to buffer
 
+Focusing on macOS for now because my client uses a Mac. I use Linux and have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not bunch benefit in this tight bundling for Linux. No idea about Windows support
+
 # Syncplay
 ![GitHub Actions build status](https://github.com/Syncplay/syncplay/workflows/Build/badge.svg)
 
