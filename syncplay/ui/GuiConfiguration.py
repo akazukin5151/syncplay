@@ -492,7 +492,10 @@ class ConfigDialog(QtWidgets.QDialog):
         else:
             self.config['host'] = None
         self.config['torrentMode'] = self.torrentModeCheckbox.isChecked()
-        self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
+        if isMacOS():
+            self.config['webtorrentPath'] = None
+        else:
+            self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.mediapathTextbox.text() == "":
@@ -622,12 +625,13 @@ class ConfigDialog(QtWidgets.QDialog):
     def torrentModeCheckboxToggled(self, config):
         # webtorrent is bundled into the mac app, so mac users do not need
         # to specify the path
+        if isMacOS():
+            return
         if not self.torrentModeCheckbox.isChecked():
             return self.webtorrentPathCombobox.setEnabled(False)
-        if not isMacOS():
-            self.webtorrentPathCombobox.setEnabled(True)
-            self.webtorrentPathCombobox.setEditable(True)
-            self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
+        self.webtorrentPathCombobox.setEnabled(True)
+        self.webtorrentPathCombobox.setEditable(True)
+        self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
 
     def addBasicTab(self):
         config = self.config
