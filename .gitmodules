@@ -1,0 +1,3 @@
+[submodule "vendor/webtorrent-cli"]
+	path = vendor/webtorrent-cli
+	url = https://github.com/akazukin5151/webtorrent-cli
