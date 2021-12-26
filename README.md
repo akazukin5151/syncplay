@@ -29,11 +29,12 @@ Only mpv is supported right now. Support for IINA coming soon.
 
 ## Install instructions for macOS
 
-- Download the `.dmg` in the latest successful CI action and install as normal
+1. Download the `.dmg` in the latest successful CI action and install as normal
 
 ## Install instructions for Linux
 
 1. Install `webtorrent-cli` using the link above
+2. Clone this repo and install from source as normal
 
 ## Usage instructions
 
