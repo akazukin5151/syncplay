@@ -633,15 +633,14 @@ class ConfigDialog(QtWidgets.QDialog):
         # webtorrent is bundled into the mac app, so mac users do not need
         # to specify the path
         if isMacOS():
+            boolean = self.torrentModeCheckbox.isChecked()
             try:
-                self.executablepathCombobox.setEnabled(False)
-                self.executablebrowseButton.setEnabled(False)
+                self.executablepathCombobox.setEnabled(not boolean)
+                self.executablebrowseButton.setEnabled(not boolean)
             except AttributeError:
                 # this just means they haven't been created yet
                 pass
-            return self.mac_player_combobox.setEnabled(
-                self.torrentModeCheckbox.isChecked()
-            )
+            return self.mac_player_combobox.setEnabled(boolean)
         if not self.torrentModeCheckbox.isChecked():
             return self.webtorrentPathCombobox.setEnabled(False)
         self.webtorrentPathCombobox.setEnabled(True)
