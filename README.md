@@ -23,31 +23,33 @@
 
 # Fork
 
-This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli) using mpv.
+This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli).
 
-Only mpv is supported right now. Support for IINA coming soon.
+For tormenting, only mpv is supported on Linux. mpv and IINA is supported on macOS. Windows is not supported. Non-torrent features are maintained, so this can function as a perfect replacement for upstream Syncplay.
 
-## Install instructions for macOS
+## Install for macOS
 
 1. Download the `.dmg` in the latest successful CI action and install as normal
 
-## Install instructions for Linux
+## Install for Linux
 
 1. Install `webtorrent-cli` using the link above
 2. Clone this repo and install from source as normal
 
-## Usage instructions
+## Usage
 
 1. Open Syncplay, tick the "Torrent mode" checkbox
 2. (Linux only) Fill the path to the webtorrent script you installed above
-3. Fill in the path to mpv
-    - macOS: use `/Applications/mpv.app/Contents/MacOS/mpv`
+3. Select your media player
+    - Linux: Fill in the path to mpv (eg `/usr/bin/mpv`)
+    - macOS: Use the dropdown to select either IINA or mpv
 4. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
 5. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
-    - Can also paste in the magnet in the configuration before step 4
+    - Can also paste in the magnet in the `Path to video` field between steps 3 and 4.
 6. Wait a while for it to buffer
+7. Everyone in the room should repeat the above steps, with the same magnet link
 
-Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. No idea about Windows support
+Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
 
 # Syncplay
 ![GitHub Actions build status](https://github.com/Syncplay/syncplay/workflows/Build/badge.svg)
