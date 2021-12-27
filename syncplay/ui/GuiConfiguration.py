@@ -11,7 +11,6 @@ from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
 from syncplay.utils import resourcespath, posixresourcespath, parse_bool, find_magnet_from_website
 
-
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
 from syncplay.vendor.Qt.QtWidgets import QApplication, QLineEdit, QLabel, QCheckBox, QButtonGroup, QRadioButton, QDoubleSpinBox, QPlainTextEdit
@@ -834,6 +833,9 @@ class ConfigDialog(QtWidgets.QDialog):
         self.executablebrowseButton.clicked.connect(
             lambda: self.browseComboboxPath(self.executablepathCombobox)
         )
+        # for executablepathCombobox and executablebrowseButton
+        self.torrentModeCheckboxToggled(config)
+
         self.mediapathTextbox = QLineEdit(config['file'], self)
         self.mediapathLabel = QLabel(getMessage("media-path-label"), self)
         self.mediabrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
