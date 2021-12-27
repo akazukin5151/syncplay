@@ -1,3 +1,5 @@
+Note that these vendored dependencies are only used in the macOS CI. Linux users need to specify the path to their webtorrent installation anyway, and it is up to them to ensure it can be executed without needing to call node (eg, `webtorrent` and not `node webtorrent.js`). The node dependency here is thus irrelevant for Linux.
+
 # webtorrent-cli fork
 
 ## Setup
@@ -23,9 +25,10 @@ For those who don't want to, the vendored webtorrent-cli lets them use the app w
 ## Why fork this?
 
 - Fix mpv command for macOS
+- Fix IINA command not using additional arguments
 - Move mpv's `--term-title-msg` argument there because it is otherwise impossible to escape shell expansion yet un-escape it so that mpv can understand it.
 
-# Node LTS (version 16.13.1)
+# Node.js LTS (version 16.13.1)
 
 ## Setup
 
