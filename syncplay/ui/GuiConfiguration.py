@@ -11,6 +11,7 @@ from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
 from syncplay.utils import resourcespath, posixresourcespath, parse_bool
 
+
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
 from syncplay.vendor.Qt.QtWidgets import QApplication, QLineEdit, QLabel, QCheckBox, QButtonGroup, QRadioButton, QDoubleSpinBox, QPlainTextEdit
@@ -632,6 +633,12 @@ class ConfigDialog(QtWidgets.QDialog):
         # webtorrent is bundled into the mac app, so mac users do not need
         # to specify the path
         if isMacOS():
+            try:
+                self.executablepathCombobox.setEnabled(False)
+                self.executablebrowseButton.setEnabled(False)
+            except AttributeError:
+                # this just means they haven't been created yet
+                pass
             return self.mac_player_combobox.setEnabled(
                 self.torrentModeCheckbox.isChecked()
             )
@@ -785,21 +792,23 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
         self.mediaplayerSettingsLayout.addWidget(self.torrentModeCheckbox, 0, 0, 1, 2)
         if isMacOS():
+            row = 2
             self.mediaplayerSettingsLayout.addWidget(self.mac_player_combobox, 1, 2, 1, 1)
             self.mediaplayerSettingsLayout.addWidget(self.mac_player_label, 1, 0, 1, 1)
         else:
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, 1, 2, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, 1, 0, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, 1, 3, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, 2, 0, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, 2, 1, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, 2, 2, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, 2, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, 3, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, 3, 2, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, 3, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, 4, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, 4, 2, 1, 2)
+            row = 1
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, row, 2, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, row, 0, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, row, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, row + 1, 0, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, row + 1, 1, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, row + 1, 2, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, row + 1, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, row + 2, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, row + 2, 2, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, row + 2, 3, 1, 1)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, row + 3, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, row + 3, 2, 1, 2)
         self.mediaplayerSettingsLayout.setSpacing(10)
         self.mediaplayerSettingsGroup.setLayout(self.mediaplayerSettingsLayout)
 
