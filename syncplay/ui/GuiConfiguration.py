@@ -495,7 +495,7 @@ class ConfigDialog(QtWidgets.QDialog):
         if isMacOS():
             self.config['webtorrentPath'] = None
             if self.mac_player_combobox.currentText() == 'mpv':
-                self.config['playerPath'] = constants.MPV_PATHS[2]
+                self.config['playerPath'] = constants.MPV_PATHS[6]
             elif self.mac_player_combobox.currentText() == 'iina':
                 self.config['playerPath'] = constants.IINA_PATHS[0]
             else:
