@@ -9,7 +9,7 @@ from unittest.mock import Mock
 from syncplay import constants
 from syncplay.players.mpv import MpvPlayer
 from syncplay.players.webtorrent_ipc import WEBTORRENT
-from syncplay.utils import isURL, isMacOS
+from syncplay.utils import isURL, isMacOS, findWorkingDir
 from syncplay.messages import getMessage
 
 
@@ -42,10 +42,8 @@ class WebtorrentMpvPlayer(MpvPlayer):
 
         # "player" path is actually webtorrent (which uses mpv)
         if isMacOS():
-            cwd = os.getcwd()
-            # os.getcwd() == '/Applications/Syncplay.app/Contents/Resources'
-            node_path = os.path.join(cwd, 'node', 'bin', 'node')
-            webtorrent_path = os.path.join(cwd, 'webtorrent-cli', 'bin', 'cmd.js')
+            node_path = os.path.join(findWorkingDir(), 'node', 'bin', 'node')
+            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-cli', 'bin', 'cmd.js')
             playerPath = f'{node_path} {webtorrent_path}'
         else:
             playerPath = client._config['webtorrentPath']

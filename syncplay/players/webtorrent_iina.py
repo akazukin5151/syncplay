@@ -8,7 +8,7 @@ from unittest.mock import Mock
 from syncplay import constants
 from syncplay.players.iina import IinaPlayer
 from syncplay.players.webtorrent_iina_ipc import WEBTORRENT_IINA
-from syncplay.utils import isMacOS, isURL, findResourcePath
+from syncplay.utils import isMacOS, isURL, findResourcePath, findWorkingDir
 from syncplay.messages import getMessage
 
 class WebtorrentIinaPlayer(IinaPlayer):
@@ -22,10 +22,8 @@ class WebtorrentIinaPlayer(IinaPlayer):
         constants.MPV_OSC_VISIBILITY_CHANGE_VERSION = True
         # "player" path is actually webtorrent (which uses mpv)
         if isMacOS():
-            cwd = os.getcwd()
-            # os.getcwd() == '/Applications/Syncplay.app/Contents/Resources'
-            node_path = os.path.join(cwd, 'node', 'bin', 'node')
-            webtorrent_path = os.path.join(cwd, 'webtorrent-cli', 'bin', 'cmd.js')
+            node_path = os.path.join(findWorkingDir(), 'node', 'bin', 'node')
+            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-cli', 'bin', 'cmd.js')
             playerPath = f'{node_path} {webtorrent_path}'
         else:
             playerPath = client._config['webtorrentPath']
