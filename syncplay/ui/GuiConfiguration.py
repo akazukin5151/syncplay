@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath, parse_bool
+from syncplay.utils import resourcespath, posixresourcespath, parse_bool, find_magnet_from_website
 
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
@@ -630,22 +630,78 @@ class ConfigDialog(QtWidgets.QDialog):
                 widget.setDisabled(not parentwidget.isChecked())
 
     def torrentModeCheckboxToggled(self, config):
-        # webtorrent is bundled into the mac app, so mac users do not need
-        # to specify the path
+        boolean = self.torrentModeCheckbox.isChecked()
+        # present in both mac and non-mac
+        self.magnetFromURL.setEnabled(boolean)
         if isMacOS():
-            boolean = self.torrentModeCheckbox.isChecked()
             try:
                 self.executablepathCombobox.setEnabled(not boolean)
                 self.executablebrowseButton.setEnabled(not boolean)
             except AttributeError:
                 # this just means they haven't been created yet
                 pass
+            # only mac
             return self.mac_player_combobox.setEnabled(boolean)
-        if not self.torrentModeCheckbox.isChecked():
-            return self.webtorrentPathCombobox.setEnabled(False)
-        self.webtorrentPathCombobox.setEnabled(True)
-        self.webtorrentPathCombobox.setEditable(True)
-        self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
+        # only in non-mac
+        # webtorrent is bundled into the mac app, so mac users do not need
+        # to specify the path
+        self.webtorrentPathCombobox.setEnabled(boolean)
+        self.webtorrentbrowseButton.setEnabled(boolean)
+
+    def openMagnetFromURLDialog(self):
+        self.magnetFromURLDialog = QtWidgets.QDialog()
+        self.magnetFromURLDialog.resize(800, 700)
+        layout = QtWidgets.QGridLayout()
+        box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Cancel)
+        box.rejected.connect(self.magnetFromURLDialog.reject)
+        box.accepted.connect(self.magnetFromURLDialog.accept)
+        urlLabel = QLabel('Website URL:')
+        self.urlEditor = QLineEdit(self)
+        encodingLabel = QLabel('Encodings to try:')
+        self.encodingEditor = QLineEdit(self)
+        self.encodingEditor.setText('utf-8,windows-1252')
+        self.fetchButton = QtWidgets.QPushButton('Fetch magnet from URL')
+        self.fetchButton.clicked.connect(self.fetchMagnetClicked)
+        self.magnetDisplay = QPlainTextEdit(self)
+        self.magnetDisplay.setReadOnly(True)
+        magnetDisplayLabel = QLabel('Fetched magnet:')
+
+        self.saveMagnetButton = QtWidgets.QPushButton('Use magnet as path to video')
+        self.saveMagnetButton.setEnabled(False)
+        self.saveMagnetButton.clicked.connect(self.pasteMagnetToField)
+        box.addButton(self.saveMagnetButton, QtWidgets.QDialogButtonBox.AcceptRole)
+
+        layout.addWidget(urlLabel, 0, 0)
+        layout.addWidget(self.urlEditor, 0, 1)
+        layout.addWidget(encodingLabel, 1, 0)
+        layout.addWidget(self.encodingEditor, 1, 1)
+        layout.addWidget(self.fetchButton, 2, 1)
+        layout.addWidget(magnetDisplayLabel, 3, 0)
+        layout.addWidget(self.magnetDisplay, 3, 1)
+        layout.addWidget(box, 4, 0, 1, 2)
+        self.magnetFromURLDialog.setLayout(layout)
+
+        self.magnetFromURLDialog.exec()
+
+    def fetchMagnetClicked(self):
+        url = self.urlEditor.text()
+        encodings = self.encodingEditor.text().split(',')
+        if url == '' or encodings == '':
+            return
+        try:
+            magnet = find_magnet_from_website(url, encodings)
+        except Exception as e:
+            self.fetchButton.setEnabled(True)
+            return QtWidgets.QMessageBox.critical(
+                self, 'Cannot fetch magnet', str(e)
+            )
+        self.fetchButton.setEnabled(True)
+        self.magnetDisplay.setPlainText(magnet)
+        self.saveMagnetButton.setEnabled(True)
+
+    def pasteMagnetToField(self):
+        magnet = self.magnetDisplay.toPlainText()
+        self.mediapathTextbox.setText(magnet)
 
     def addBasicTab(self):
         config = self.config
@@ -747,11 +803,15 @@ class ConfigDialog(QtWidgets.QDialog):
         else:
             self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
             self.webtorrentPathCombobox.setEnabled(False)
+            self.webtorrentPathCombobox.setEditable(True)
+            self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
             self.webtorrentPathLabel = QLabel('Path to webtorrent:', self)
             self.webtorrentbrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
             self.webtorrentbrowseButton.clicked.connect(
                 lambda: self.browseComboboxPath(self.webtorrentPathCombobox)
             )
+        self.magnetFromURL = QtWidgets.QPushButton('Generate magnet from URL', self)
+        self.magnetFromURL.clicked.connect(self.openMagnetFromURLDialog)
         self.torrentModeCheckbox = QCheckBox("Torrent mode")
         self.torrentModeCheckbox.toggled.connect(
             lambda: self.torrentModeCheckboxToggled(config)
@@ -790,6 +850,7 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
         self.mediaplayerSettingsLayout.addWidget(self.torrentModeCheckbox, 0, 0, 1, 2)
+        self.mediaplayerSettingsLayout.addWidget(self.magnetFromURL, 0, 2, 1, 2)
         if isMacOS():
             row = 2
             self.mediaplayerSettingsLayout.addWidget(self.mac_player_combobox, 1, 2, 1, 1)

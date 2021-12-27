@@ -512,3 +512,26 @@ class NotControlledRoom(Exception):
 
 def parse_bool(bs: str) -> bool:
     return bs == 'True' or bs is True
+
+def parse_with_encodings(html_bytes: bytes, encodings: 'List[str]') -> str:
+    try:
+        return html_bytes.decode(encodings[0])
+    except UnicodeDecodeError:
+        if encodings == []:
+            raise
+        return parse_with_encodings(encodings[1:])
+
+def find_magnet_from_website(url: str, encodings: 'List[str]') -> str:
+    page = urllib.request.urlopen(url)
+    html_bytes = page.read()
+
+    html = parse_with_encodings(html_bytes, encodings)
+
+    start = html.find('<a href="magnet')
+    end = start + html[start:].find('>')
+    block = html[start:end]
+
+    start = block.find('"') + 1
+    end = start + block[start:].find('"')
+    magnet = block[start:end]
+    return magnet
