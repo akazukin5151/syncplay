@@ -686,7 +686,7 @@ class ConfigDialog(QtWidgets.QDialog):
     def fetchMagnetClicked(self):
         url = self.urlEditor.text()
         encodings = self.encodingEditor.text().split(',')
-        if url == '' or encodings == '':
+        if url == '' or encodings == []:
             return
         try:
             magnet = find_magnet_from_website(url, encodings)
