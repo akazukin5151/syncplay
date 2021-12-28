@@ -1708,7 +1708,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                       getMessage("openstreamurl-menu-label"))
         window.openAction.triggered.connect(self.promptForStreamURL)
 
-        window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_add.png'), 'Stream magnet from &webpage')
+        window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_blue.png'), 'Stream magnet from &webpage')
         window.openAction.triggered.connect(self.promptForMagnetFromWebpage)
 
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_add.png'), '&Stream magnet link')
