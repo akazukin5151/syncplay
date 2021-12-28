@@ -363,10 +363,7 @@ class MpvPlayer(BasePlayer):
 
     def _preparePlayer(self):
         if self.delayedFilePath:
-            if self._client._config['magnet']:
-                self.openMagnet(self.delayedFilePath)
-            else:
-                self.openFile(self.delayedFilePath)
+            self.openFile(self.delayedFilePath)
         self.setPaused(True)
         self.reactor.callLater(0, self._client.initPlayer, self)
 
@@ -396,9 +393,14 @@ class MpvPlayer(BasePlayer):
     def openMagnet(self, magnet):
         self.webtorrent = WebtorrentClient(self._client._config['webtorrentPath'], magnet)
         self.webtorrent.start()
-        self.openFile(self.webtorrent.filepath)
+        self.openFile_inner(self.webtorrent.filepath)
 
     def openFile(self, filePath, resetPosition=False):
+        if self._client._config['magnet']:
+            return self.openMagnet(filePath)
+        return self.openFile_inner(filePath, resetPosition)
+
+    def openFile_inner(self, filePath, resetPosition=False):
         self._client.ui.showDebugMessage("openFile, resetPosition=={}".format(resetPosition))
         if resetPosition:
             self.lastResetTime = time.time()

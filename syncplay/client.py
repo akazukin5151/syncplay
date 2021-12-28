@@ -823,6 +823,8 @@ class SyncplayClient(object):
             if perPlayerArguments:
                 self._config['playerArgs'].extend(perPlayerArguments)
             filePath = self._config['file']
+            if filePath is None and self._config['magnet'] is not None:
+                filePath = self._config['magnet']
             if self._config['sharedPlaylistEnabled'] and filePath is not None:
                 self.delayedLoadPath = filePath
                 filePath = ""
