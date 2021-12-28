@@ -37,32 +37,32 @@ class WebtorrentIinaPlayer(IinaPlayer):
         self._clearFileLoaded()
         # TODO load another magnet and see if the stuff below are still needed
         # from _preparePlayer
-        #for key, value in constants.IINA_PROPERTIES.items():
-        #    self._setProperty(key, value)
-        #self._listener.sendLine(["load-script", findResourcePath("syncplayintf.lua")])
-        ## end from _preparePlayer
-        ## TLDR: this fixes a bug where IINA launches but Syncplay shows "no file opened"
-        ## This is a hack for IINA -- when it opens the video it does not
-        ## print the SyncplayUpdateFile, because (mpv-)term-playing-msg does not work
-        ## on the command line (like Popen). Only upstream syncplay's method works,
-        ## setting the property via sendLine in _preparePlayer. However, this cannot
-        ## be done here as it requires IINA to be already running. Webtorrent does not
-        ## launch IINA until receiving a magnet. The relevant 3 lines in _preparePlayer
-        ## are in fact just above this section, but are in fact useless because
-        ## term-playing-msg only fires when IINA opens a new file, not when a file
-        ## is already opened
-        ## This manually updates the current user's file to the magnet link
-        ## This is inferior to mpv -- mpv is able to send the video length and
-        ## proper path (not magnet)
-        #self._client.currentUser.file = {
-        #    'name': filePath,
-        #    'duration': '???',
-        #    'size': '???',
-        #    'path': filePath
-        #}
-        ## Forcibly update the user list with the above information
-        #self._client.showUserList()
-        #self._client.initPlayer(self)
+        for key, value in constants.IINA_PROPERTIES.items():
+            self._setProperty(key, value)
+        self._listener.sendLine(["load-script", findResourcePath("syncplayintf.lua")])
+        # end from _preparePlayer
+        # TLDR: this fixes a bug where IINA launches but Syncplay shows "no file opened"
+        # This is a hack for IINA -- when it opens the video it does not
+        # print the SyncplayUpdateFile, because (mpv-)term-playing-msg does not work
+        # on the command line (like Popen). Only upstream syncplay's method works,
+        # setting the property via sendLine in _preparePlayer. However, this cannot
+        # be done here as it requires IINA to be already running. Webtorrent does not
+        # launch IINA until receiving a magnet. The relevant 3 lines in _preparePlayer
+        # are in fact just above this section, but are in fact useless because
+        # term-playing-msg only fires when IINA opens a new file, not when a file
+        # is already opened
+        # This manually updates the current user's file to the magnet link
+        # This is inferior to mpv -- mpv is able to send the video length and
+        # proper path (not magnet)
+        self._client.userlist.currentUser.file = {
+            'name': filePath,
+            'duration': '???',
+            'size': '???',
+            'path': filePath
+        }
+        # Forcibly update the user list with the above information
+        self._client.showUserList()
+        self._client.initPlayer(self)
 
     def openFile(self, filePath, resetPosition=False):
         '''Fork: add debug message because it takes time to load and buffer'''

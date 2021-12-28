@@ -285,14 +285,15 @@ class ConfigurationGetter(object):
         if not isMacOS() and 'webtorrent' not in self._config['webtorrentPath']:
             raise InvalidConfigValue('Webtorrent path name must include "webtorrent"')
 
-        # validate torrentPlayerPath
-        # macOS uses hardcoded paths and does not need to configure this
-        # basically a clone of the validation for (normal) player path
-        if not isMacOS() and self._config['torrentPlayerPath']:
+        # validate torrentPlayerPath and assign torrentPlayerClass
+        if self._config['torrentPlayerPath']:
             player = self._playerFactory.getTorrentPlayerByPath(self._config['torrentPlayerPath'])
             if player:
                 self._config['torrentPlayerClass'] = player
             else:
+                # macOS uses hardcoded paths and so it should always be valid
+                # therefore this error will only appear for non-mac,
+                # which can only use mpv
                 raise InvalidConfigValue(
                     'Torrent player path is not set properly. Supported players are: mpv.'
                 )
