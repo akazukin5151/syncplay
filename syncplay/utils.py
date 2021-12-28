@@ -522,7 +522,7 @@ def parse_with_encodings(html_bytes: bytes, encodings: 'List[str]') -> str:
     except UnicodeDecodeError:
         if encodings == []:
             raise
-        return parse_with_encodings(encodings[1:])
+        return parse_with_encodings(html_bytes, encodings[1:])
 
 def find_magnet_from_website(url: str, encodings: 'List[str]') -> str:
     page = urllib.request.urlopen(url)
