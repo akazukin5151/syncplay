@@ -60,7 +60,7 @@ class SyncClientFactory(ClientFactory):
 
 
 class SyncplayClient(object):
-    def __init__(self, ui, config):
+    def __init__(self, playerClass, ui, config):
         self.delayedLoadPath = None
         constants.SHOW_OSD = config['showOSD']
         constants.SHOW_OSD_WARNINGS = config['showOSDWarnings']
@@ -107,8 +107,7 @@ class SyncplayClient(object):
             self.__getUserlistOnLogon = True
         else:
             self.__getUserlistOnLogon = False
-        self._playerClass = config['playerClass']
-        self._torrentPlayerClass = config['torrentPlayerClass']
+        self._playerClass = playerClass
         self._config = config
 
         self._running = False
@@ -816,30 +815,19 @@ class SyncplayClient(object):
             self._player.setPaused(paused)
 
     def start(self, host, port):
-        return self.abstract_start(
-            self._playerClass, self._config['playerPath'],
-            self._config['file'], host, port
-        )
-
-    def start_torrent(self, host, port):
-        return self.abstract_start(
-            self._torrentPlayerClass, self._config['torrentPlayerPath'],
-            self._config['magnet'], host, port
-        )
-
-    def abstract_start(self, playerClass, playerPath, filePath, host, port):
         if self._running:
             return
         self._running = True
-        if playerClass:
-            perPlayerArguments = utils.getPlayerArgumentsByPathAsArray(self._config['perPlayerArguments'], playerPath)
+        if self._playerClass:
+            perPlayerArguments = utils.getPlayerArgumentsByPathAsArray(self._config['perPlayerArguments'], self._config['playerPath'])
             if perPlayerArguments:
                 self._config['playerArgs'].extend(perPlayerArguments)
-            #if self._config['sharedPlaylistEnabled'] and filePath is not None:
-            #    self.delayedLoadPath = filePath
-            #    filePath = ""
-            reactor.callLater(0.1, playerClass.run, self, playerPath, filePath, self._config['playerArgs'], )
-            playerClass = None
+            filePath = self._config['file']
+            if self._config['sharedPlaylistEnabled'] and filePath is not None:
+                self.delayedLoadPath = filePath
+                filePath = ""
+            reactor.callLater(0.1, self._playerClass.run, self, self._config['playerPath'], filePath, self._config['playerArgs'], )
+            self._playerClass = None
         self.protocolFactory = SyncClientFactory(self)
         if '[' in host:
             host = host.strip('[]')

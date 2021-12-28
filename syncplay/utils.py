@@ -516,9 +516,6 @@ class RandomStringGenerator(object):
 class NotControlledRoom(Exception):
     pass
 
-def parse_bool(bs: str) -> bool:
-    return bs == 'True' or bs is True
-
 def parse_with_encodings(html_bytes: bytes, encodings: 'List[str]') -> str:
     try:
         return html_bytes.decode(encodings[0])

@@ -33,7 +33,6 @@ class ConfigurationGetter(object):
             "password": None,
             "webtorrentPath": None,
             "playerPath": None,
-            "torrentPlayerPath": None,
             "perPlayerArguments": None,
             "mediaSearchDirectories": None,
             "sharedPlaylistEnabled": True,
@@ -46,7 +45,6 @@ class ConfigurationGetter(object):
             "magnet": None,
             "playerArgs": [],
             "playerClass": None,
-            "torrentPlayerClass": None,
             "slowdownThreshold": constants.DEFAULT_SLOWDOWN_KICKIN_THRESHOLD,
             "rewindThreshold": constants.DEFAULT_REWIND_THRESHOLD,
             "fastforwardThreshold": constants.DEFAULT_FASTFORWARD_THRESHOLD,
@@ -190,7 +188,7 @@ class ConfigurationGetter(object):
             "server_data": ["host", "port", "password"],
             "client_settings": [
                 "name", "room", "roomList", "webtorrentPath",
-                "playerPath", "torrentPlayerPath", "perPlayerArguments",
+                "playerPath", "perPlayerArguments",
                 "slowdownThreshold", "rewindThreshold", "fastforwardThreshold",
                 "slowOnDesync", "rewindOnDesync",
                 "fastforwardOnDesync", "dontSlowDownWithMe",
@@ -284,23 +282,6 @@ class ConfigurationGetter(object):
         # Bundled inside app in macOS and does not need to configure this
         if not isMacOS() and 'webtorrent' not in self._config['webtorrentPath']:
             raise InvalidConfigValue('Webtorrent path name must include "webtorrent"')
-
-        # validate torrentPlayerPath and assign torrentPlayerClass
-        if self._config['torrentPlayerPath']:
-            player = self._playerFactory.getTorrentPlayerByPath(self._config['torrentPlayerPath'])
-            if player:
-                self._config['torrentPlayerClass'] = player
-            else:
-                # macOS uses hardcoded paths and so it should always be valid
-                # therefore this error will only appear for non-mac,
-                # which can only use mpv
-                raise InvalidConfigValue(
-                    'Torrent player path is not set properly. Supported players are: mpv.'
-                )
-            playerPathErrors = player.getPlayerPathErrors(
-                self._config["torrentPlayerPath"], self._config['magnet'] if self._config['magnet'] else None)
-            if playerPathErrors:
-                raise InvalidConfigValue(playerPathErrors)
 
         for key in self._required:
             if key == "playerPath":

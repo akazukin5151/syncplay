@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath, parse_bool, find_magnet_from_website
+from syncplay.utils import resourcespath, posixresourcespath, find_magnet_from_website
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
@@ -492,15 +492,8 @@ class ConfigDialog(QtWidgets.QDialog):
             self.config['host'] = None
         if isMacOS():
             self.config['webtorrentPath'] = None
-            if self.mac_player_combobox.currentText() == 'mpv':
-                self.config['torrentPlayerPath'] = constants.MPV_PATHS[6]
-            elif self.mac_player_combobox.currentText() == 'iina':
-                self.config['torrentPlayerPath'] = constants.IINA_PATHS[0]
-            else:
-                self.config['torrentPlayerPath'] = None
         else:
             self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
-            self.config['torrentPlayerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.videoIsMagnetCheckbox.isChecked():
@@ -792,20 +785,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediaplayerSettingsGroup = QtWidgets.QGroupBox(getMessage("media-setting-title"))
 
         # XXX: no translation for these labels
-        if isMacOS():
-            # path is bundled inside the .app in macOS, so no need to specify
-            # webtorrent path
-            # but can choose the player (iina or mpv)
-            # Non-mac does not need to choose, as it's always mpv
-            self.mac_player_combobox = QtWidgets.QComboBox(self)
-            if self.config['torrentPlayerPath'] == 'iina':
-                self.mac_player_combobox.addItem('iina')
-                self.mac_player_combobox.addItem('mpv')
-            else:
-                self.mac_player_combobox.addItem('mpv')
-                self.mac_player_combobox.addItem('iina')
-            self.mac_player_label = QLabel('Media player for torrents:', self)
-        else:
+        if not isMacOS():
             self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
             self.webtorrentPathCombobox.setEditable(True)
             self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
@@ -851,10 +831,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.playerargsTextbox.setObjectName(constants.LOAD_SAVE_MANUALLY_MARKER + "player-arguments")
 
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
-        if isMacOS():
-            self.mediaplayerSettingsLayout.addWidget(self.mac_player_combobox, 0, 2, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.mac_player_label, 0, 0, 1, 1)
-        else:
+        if not isMacOS():
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, 0, 2, 1, 1)
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, 0, 0, 1, 1)
             self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, 0, 3, 1, 1)
