@@ -1326,6 +1326,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self._syncplayClient.openFile(streamURL, resetPosition=False, fromUser=True)
 
     @needsClient
+    def promptForMagnetURL(self):
+        streamURL, ok = QtWidgets.QInputDialog.getText(
+            self, "Stream magnet link with webtorrent",
+            "Magnet", QtWidgets.QLineEdit.Normal, "")
+        if ok and streamURL != '':
+            self._syncplayClient.openMagnet(streamURL, resetPosition=False, fromUser=True)
+
+    @needsClient
     def createControlledRoom(self):
         controlroom, ok = QtWidgets.QInputDialog.getText(
             self, getMessage("createcontrolledroom-msgbox-label"),
@@ -1694,6 +1702,8 @@ class MainWindow(QtWidgets.QMainWindow):
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'world_explore.png'),
                                                       getMessage("openstreamurl-menu-label"))
         window.openAction.triggered.connect(self.promptForStreamURL)
+        window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_add.png'), '&Stream magnet link')
+        window.openAction.triggered.connect(self.promptForMagnetURL)
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'film_folder_edit.png'),
                                                       getMessage("setmediadirectories-menu-label"))
         window.openAction.triggered.connect(self.openSetMediaDirectoriesDialog)

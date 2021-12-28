@@ -603,6 +603,9 @@ class SyncplayClient(object):
             self.lastRewindTime = time.time()
             self.autoplayCheck()
 
+    def openMagnet(self, filePath, resetPosition=False, fromUser=False):
+        self._player.openMagnet(filePath)
+
     def fileSwitchFoundFiles(self):
         self.ui.fileSwitchFoundFiles()
         self.playlist.loadCurrentPlaylistIndex()

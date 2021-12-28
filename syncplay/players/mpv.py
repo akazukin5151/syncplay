@@ -13,6 +13,7 @@ from syncplay.players.basePlayer import BasePlayer
 from syncplay.utils import isURL, findResourcePath
 from syncplay.utils import isMacOS, isWindows, isASCII
 from syncplay.vendor.python_mpv_jsonipc.python_mpv_jsonipc import MPV
+from syncplay.webtorrent import WebtorrentClient
 
 class MpvPlayer(BasePlayer):
     RE_VERSION = re.compile(r'.*mpv (\d+)\.(\d+)\.\d+.*')
@@ -362,7 +363,10 @@ class MpvPlayer(BasePlayer):
 
     def _preparePlayer(self):
         if self.delayedFilePath:
-            self.openFile(self.delayedFilePath)
+            if self._client._config['magnet']:
+                self.openMagnet(self.delayedFilePath)
+            else:
+                self.openFile(self.delayedFilePath)
         self.setPaused(True)
         self.reactor.callLater(0, self._client.initPlayer, self)
 
@@ -388,6 +392,11 @@ class MpvPlayer(BasePlayer):
         self._setProperty(self.POSITION_QUERY, "{}".format(value))
         time.sleep(0.03)
         self.lastMPVPositionUpdate = time.time()
+
+    def openMagnet(self, magnet):
+        self.webtorrent = WebtorrentClient(self._client._config['webtorrentPath'], magnet)
+        self.webtorrent.start()
+        self.openFile(self.webtorrent.filepath)
 
     def openFile(self, filePath, resetPosition=False):
         self._client.ui.showDebugMessage("openFile, resetPosition=={}".format(resetPosition))
@@ -511,6 +520,7 @@ class MpvPlayer(BasePlayer):
         self.reactor = reactor
         self._client = client
         self._set_defaults()
+        self.webtorrent = None
 
         self._playerIPCHandler = MPV
         self._create_listener(playerPath, filePath, args)
@@ -578,7 +588,7 @@ class MpvPlayer(BasePlayer):
                 self.__playerController.chatOSDSupported = False
             if self.__playerController.getPlayerPathErrors(playerPath, filePath):
                 raise ValueError()
-            if filePath and '://' not in filePath:
+            if filePath and '://' not in filePath and 'magnet:?' not in filePath:
                 if not os.path.isfile(filePath) and 'PWD' in os.environ:
                     filePath = os.environ['PWD'] + os.path.sep + filePath
                 filePath = os.path.realpath(filePath)

@@ -4,7 +4,7 @@ import syncplay.players
 class PlayerFactory(object):
     def __init__(self):
         self._players = syncplay.players.getAvailablePlayers()
-        self._torrent_players = syncplay.players.getAvailableTorrentPlayers()
+        self._torrent_players =self._players
 
     def getAvailablePlayerPaths(self):
         l = []
