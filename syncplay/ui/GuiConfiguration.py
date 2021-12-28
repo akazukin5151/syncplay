@@ -798,8 +798,12 @@ class ConfigDialog(QtWidgets.QDialog):
             # but can choose the player (iina or mpv)
             # Non-mac does not need to choose, as it's always mpv
             self.mac_player_combobox = QtWidgets.QComboBox(self)
-            self.mac_player_combobox.addItem('iina')
-            self.mac_player_combobox.addItem('mpv')
+            if self.config['torrentPlayerPath'] == 'iina':
+                self.mac_player_combobox.addItem('iina')
+                self.mac_player_combobox.addItem('mpv')
+            else:
+                self.mac_player_combobox.addItem('mpv')
+                self.mac_player_combobox.addItem('iina')
             self.mac_player_label = QLabel('Media player for torrents:', self)
         else:
             self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
