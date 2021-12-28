@@ -1,7 +1,8 @@
 from syncplay.players.mplayer import MplayerPlayer
 from syncplay.players.mpv import MpvPlayer
 from syncplay.players.webtorrent_mpv import WebtorrentMpvPlayer
-from syncplay.players.webtorrent_iina import WebtorrentIinaPlayer
+#from syncplay.players.webtorrent_iina import WebtorrentIinaPlayer
+from syncplay.players.webtorrent_iina_new import WebtorrentIinaPlayer
 from syncplay.players.mpvnet import MpvnetPlayer
 from syncplay.players.vlc import VlcPlayer
 try:
