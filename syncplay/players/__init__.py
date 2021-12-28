@@ -27,5 +27,3 @@ def getAvailablePlayers():
 def getAvailableTorrentPlayers():
     return [WebtorrentMpvPlayer, WebtorrentIinaPlayer]
 
-def getAllAvailablePlayers():
-    return getAvailablePlayers() + getAvailableTorrentPlayers()
