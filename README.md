@@ -25,7 +25,7 @@
 
 This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli).
 
-For tormenting, only mpv is supported on Linux. mpv and IINA is supported on macOS. Windows is not supported. Non-torrent features are maintained, so this can function as a perfect replacement for upstream Syncplay.
+For torrenting, only mpv is supported on Linux. mpv and IINA is supported on macOS. Windows is not supported. Non-torrent features are maintained, so this can function as a perfect replacement for upstream Syncplay.
 
 ## Install for macOS
 
@@ -36,18 +36,23 @@ For tormenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 1. Install `webtorrent-cli` using the link above
 2. Clone this repo and install from source as normal
 
+## First time setup
+
+1. Open Syncplay
+2. (Linux only) Fill the path to the webtorrent script you installed above
+3. Select a compatible media player
+    - Linux: mpv only
+    - macOS: IINA or mpv
+
 ## Usage
 
-1. Open Syncplay, tick the "Torrent mode" checkbox
-2. (Linux only) Fill the path to the webtorrent script you installed above
-3. Select your media player
-    - Linux: Fill in the path to mpv (eg `/usr/bin/mpv`)
-    - macOS: Use the dropdown to select either IINA or mpv
-4. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
-5. Go to `File` -> `Open media stream URL` and paste in your magnet link (`magnet:...`)
-    - Can also paste in the magnet in the `Path to video` field between steps 3 and 4.
-6. Wait a while for it to buffer
-7. Everyone in the room should repeat the above steps, with the same magnet link
+1. Tick the "Video is a magnet link" checkbox
+2. Paste in the magnet to the `Magnet link` field
+    - Alternatively, if you have a link to a webpage containing a magnet, click `From URL` to try to automatically fetch the magnet from the page
+3. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
+4. Wait a while for it to buffer
+5. Everyone in the room should repeat the above steps, with the same magnet link
+6. Another magnet link can be used to replace the current video in `File` -> `Open media stream URL`
 
 Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
 
