@@ -15,6 +15,7 @@ from twisted.internet import task
 from syncplay import utils, constants, version, revision, release_number
 from syncplay.messages import getMessage
 from syncplay.ui.consoleUI import ConsoleUI
+from syncplay.ui.magnet import MagnetFromWebPageInFilesMenu
 from syncplay.utils import resourcespath
 from syncplay.utils import isLinux, isWindows, isMacOS
 from syncplay.utils import formatTime, sameFilename, sameFilesize, sameFileduration, RoomPasswordProvider, formatSize, isURL
@@ -1334,6 +1335,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self._syncplayClient.openMagnet(streamURL, resetPosition=False, fromUser=True)
 
     @needsClient
+    def promptForMagnetFromWebpage(self):
+        MagnetFromWebPageInFilesMenu(self).openMagnetFromURLDialog()
+
+    @needsClient
     def createControlledRoom(self):
         controlroom, ok = QtWidgets.QInputDialog.getText(
             self, getMessage("createcontrolledroom-msgbox-label"),
@@ -1702,8 +1707,13 @@ class MainWindow(QtWidgets.QMainWindow):
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'world_explore.png'),
                                                       getMessage("openstreamurl-menu-label"))
         window.openAction.triggered.connect(self.promptForStreamURL)
+
+        window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_add.png'), 'Stream magnet from &webpage')
+        window.openAction.triggered.connect(self.promptForMagnetFromWebpage)
+
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'transmit_add.png'), '&Stream magnet link')
         window.openAction.triggered.connect(self.promptForMagnetURL)
+
         window.openAction = window.fileMenu.addAction(QtGui.QPixmap(resourcespath + 'film_folder_edit.png'),
                                                       getMessage("setmediadirectories-menu-label"))
         window.openAction.triggered.connect(self.openSetMediaDirectoriesDialog)

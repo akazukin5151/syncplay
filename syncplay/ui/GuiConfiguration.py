@@ -10,6 +10,7 @@ from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialL
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
 from syncplay.utils import resourcespath, posixresourcespath, find_magnet_from_website, findWorkingDir
+from syncplay.ui.magnet import MagnetFromWebPageInConfig
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
@@ -644,61 +645,6 @@ class ConfigDialog(QtWidgets.QDialog):
             self.magnetFromURL.hide()
             self.mediapathLabel.setText(getMessage("media-path-label"))
 
-    def openMagnetFromURLDialog(self):
-        self.magnetFromURLDialog = QtWidgets.QDialog()
-        self.magnetFromURLDialog.resize(800, 700)
-        layout = QtWidgets.QGridLayout()
-        box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Cancel)
-        box.rejected.connect(self.magnetFromURLDialog.reject)
-        box.accepted.connect(self.magnetFromURLDialog.accept)
-        urlLabel = QLabel('Website URL:')
-        self.urlEditor = QLineEdit(self)
-        encodingLabel = QLabel('Encodings to try:')
-        self.encodingEditor = QLineEdit(self)
-        self.encodingEditor.setText('utf-8,windows-1252')
-        self.fetchButton = QtWidgets.QPushButton('Fetch magnet from URL')
-        self.fetchButton.clicked.connect(self.fetchMagnetClicked)
-        self.magnetDisplay = QPlainTextEdit(self)
-        self.magnetDisplay.setReadOnly(True)
-        magnetDisplayLabel = QLabel('Fetched magnet:')
-
-        self.saveMagnetButton = QtWidgets.QPushButton('Use magnet as path to video')
-        self.saveMagnetButton.setEnabled(False)
-        self.saveMagnetButton.clicked.connect(self.pasteMagnetToField)
-        box.addButton(self.saveMagnetButton, QtWidgets.QDialogButtonBox.AcceptRole)
-
-        layout.addWidget(urlLabel, 0, 0)
-        layout.addWidget(self.urlEditor, 0, 1)
-        layout.addWidget(encodingLabel, 1, 0)
-        layout.addWidget(self.encodingEditor, 1, 1)
-        layout.addWidget(self.fetchButton, 2, 1)
-        layout.addWidget(magnetDisplayLabel, 3, 0)
-        layout.addWidget(self.magnetDisplay, 3, 1)
-        layout.addWidget(box, 4, 0, 1, 2)
-        self.magnetFromURLDialog.setLayout(layout)
-
-        self.magnetFromURLDialog.exec()
-
-    def fetchMagnetClicked(self):
-        url = self.urlEditor.text()
-        encodings = self.encodingEditor.text().split(',')
-        if url == '' or encodings == []:
-            return
-        try:
-            magnet = find_magnet_from_website(url, encodings)
-        except Exception as e:
-            self.fetchButton.setEnabled(True)
-            return QtWidgets.QMessageBox.critical(
-                self, 'Cannot fetch magnet', str(e)
-            )
-        self.fetchButton.setEnabled(True)
-        self.magnetDisplay.setPlainText(magnet)
-        self.saveMagnetButton.setEnabled(True)
-
-    def pasteMagnetToField(self):
-        magnet = self.magnetDisplay.toPlainText()
-        self.mediapathTextbox.setText(magnet)
-
     def addBasicTab(self):
         config = self.config
         playerpaths = self.playerpaths
@@ -797,7 +743,7 @@ class ConfigDialog(QtWidgets.QDialog):
                 lambda: self.browseComboboxPath(self.webtorrentPathCombobox)
             )
         self.magnetFromURL = QtWidgets.QPushButton('From URL', self)
-        self.magnetFromURL.clicked.connect(self.openMagnetFromURLDialog)
+        # connected later...
         self.videoIsMagnetCheckbox = QCheckBox("Video is a magnet link")
         self.videoIsMagnetCheckbox.toggled.connect(self.videoIsMagnetCheckboxToggled)
         self.videoIsMagnetCheckbox.setChecked(False)
@@ -822,6 +768,9 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediapathLabel = QLabel(getMessage("media-path-label"), self)
         self.mediabrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
         self.mediabrowseButton.clicked.connect(self.browseMediapath)
+
+        magnet_handler = MagnetFromWebPageInConfig(self, self.mediapathTextbox)
+        self.magnetFromURL.clicked.connect(magnet_handler.openMagnetFromURLDialog)
 
         self.executablepathLabel.setObjectName("executable-path")
         self.executablepathCombobox.setObjectName("executable-path")
