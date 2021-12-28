@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath, find_magnet_from_website
+from syncplay.utils import resourcespath, posixresourcespath, find_magnet_from_website, findWorkingDir
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
 from syncplay.vendor.Qt.QtCore import Qt, QSettings, QCoreApplication, QSize, QPoint, QUrl, QLine, QEventLoop, Signal
@@ -490,11 +490,13 @@ class ConfigDialog(QtWidgets.QDialog):
             self.config['host'] = self.config['host'].replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
         else:
             self.config['host'] = None
+        self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         if isMacOS():
-            self.config['webtorrentPath'] = None
+            node_path = os.path.join(findWorkingDir(), 'node', 'bin', 'node')
+            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-cli', 'bin', 'cmd.js')
+            self.config['webtorrentPath'] = f'{node_path} {webtorrent_path}'
         else:
             self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
-        self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.videoIsMagnetCheckbox.isChecked():
             if self.mediapathTextbox.text() == '':
