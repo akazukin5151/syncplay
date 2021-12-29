@@ -98,9 +98,6 @@ def parseTime(timeStr):
 
 
 def formatTime(timeInSeconds, weeksAsTitles=True):
-    # it's something like '???', keep as is
-    if isinstance(timeInSeconds, str):
-        return timeInSeconds
     if timeInSeconds < 0:
         timeInSeconds = -timeInSeconds
         sign = '-'
@@ -345,9 +342,6 @@ def sameFilesize(filesize1, filesize2):
 
 
 def sameFileduration(duration1, duration2):
-    # Either one is something like '???'
-    if isinstance(duration1, str) or isinstance(duration2, str):
-        return False
     if not constants.SHOW_DURATION_NOTIFICATION:
         return True
     elif abs(round(duration1) - round(duration2)) < constants.DIFFERENT_DURATION_THRESHOLD:
