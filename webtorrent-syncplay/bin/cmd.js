@@ -2,7 +2,7 @@
 import WebTorrent from 'webtorrent'
 import ipc from 'node-ipc'
 
-let client, server
+let client
 
 process.on('SIGINT', gracefulExit)
 process.on('SIGTERM', gracefulExit)
@@ -65,7 +65,7 @@ async function runDownload (magnet) {
   })
 
   // Start http server
-  server = torrent.createServer()
+  const server = torrent.createServer()
 
   server.listen(8000)
     .on('error', err => {
@@ -123,7 +123,7 @@ function fatalError (err) {
 }
 
 function gracefulExit () {
-  console.log(`webtorrent webtorrent is exiting...`)
+  console.log('webtorrent webtorrent is exiting...')
 
   process.removeListener('SIGINT', gracefulExit)
   process.removeListener('SIGTERM', gracefulExit)
