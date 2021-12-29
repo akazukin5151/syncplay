@@ -4,26 +4,19 @@ import ipc from 'node-ipc'
 
 let client, server
 
-let expectedError = false
-
-process.on('exit', code => {
-  if (code === 0 || expectedError) return // normal exit
-  if (code === 130) return // intentional exit with Control-C
-})
-
 process.on('SIGINT', gracefulExit)
 process.on('SIGTERM', gracefulExit)
 
 let argv = process.argv.slice(2)
-let magnet = argv[0]
-let socket_address = argv[1]
+const magnet = argv[0]
+const socket_address = argv[1]
 
 console.log(`webtorrent: got magnet ${magnet}`)
 console.log(`webtorrent: got socket_address ${socket_address}`)
 
 if (!magnet || !socket_address) {
-    console.log('magnet or socket_address is missing!')
-    process.exit(1)
+  console.log('magnet or socket_address is missing!')
+  process.exit(1)
 }
 
 runDownload(magnet)
@@ -61,7 +54,7 @@ async function runDownload (magnet) {
     torrent.on('metadata', () => {
       torrent.removeListener('wire', updateMetadata)
 
-      console.log(`webtorrent: verifying existing torrent data...`)
+      console.log('webtorrent: verifying existing torrent data...')
     })
   })
 
@@ -98,9 +91,9 @@ async function runDownload (magnet) {
 
   async function onReady () {
     let href = `http://localhost:${server.address().port}`
-    let allHrefs = []
     let emitter
     if (torrent.files.length > 1) {
+      let allHrefs = []
       torrent.files.forEach((file, i) =>
         allHrefs.push(JSON.stringify(`${href}/${i}/${encodeURIComponent(file.name)}`))
       )
@@ -117,8 +110,8 @@ async function runDownload (magnet) {
     ipc.connectTo('myid', socket_address, () => {
       ipc.of.myid.on('connect', emitter)
       ipc.of.myid.on('disconnect', () => {
-          ipc.disconnect('myid')
-          gracefulExit()
+        ipc.disconnect('myid')
+        gracefulExit()
       })
     })
   }
