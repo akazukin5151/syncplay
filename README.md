@@ -52,7 +52,7 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 3. (Choose a server and room and stuff, then) (click the) run Syncplay (button)
 4. Wait a while for it to buffer
 5. Everyone in the room should repeat the above steps, with the same magnet link
-6. Another magnet link can be used to replace the current video in `File` -> `Open media stream URL`
+6. Another magnet link can be used to replace the current video in `File` -> `Stream magnet link` or `File` -> `Stream magnet from webpage`
 
 Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
 
