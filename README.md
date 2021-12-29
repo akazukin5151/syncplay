@@ -34,7 +34,9 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 ## Install for Linux
 
 1. Clone this repo and install from source as normal
-2. Install `webtorrent-syncplay` from the dir (`npm install -g` could work)
+2. Install node.js
+3. Install `webtorrent-syncplay` in this repo (`npm install -g` could work)
+4. Make sure `webtorrent-syncplay` is executable by node itself (eg, `webtorrent-syncplay` and not `node cmd.js`)
 
 ## First time setup
 
