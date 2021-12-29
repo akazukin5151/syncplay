@@ -23,7 +23,7 @@
 
 # Fork
 
-This is a fork of Syncplay that adds support for [webtorrent](https://github.com/webtorrent/webtorrent-cli).
+This is a fork of Syncplay that adds support for streaming videos in torrents.
 
 For torrenting, only mpv is supported on Linux. mpv and IINA is supported on macOS. Windows is not supported. Non-torrent features are maintained, so this can function as a perfect replacement for upstream Syncplay.
 
@@ -33,8 +33,8 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 
 ## Install for Linux
 
-1. Install `webtorrent-cli` using the link above
-2. Clone this repo and install from source as normal
+1. Clone this repo and install from source as normal
+2. Install `webtorrent-syncplay` from the dir (`npm install -g` could work)
 
 ## First time setup
 

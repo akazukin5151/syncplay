@@ -17,7 +17,7 @@ class WebtorrentClient:
         self.filepath = self.get_leeching_file()
 
     def launch_webtorrent(self):
-        args = f'{self.webtorrent_path} download "{self.magnet}" --ipc="{self.socket_address}" --quiet --keep-seeding'
+        args = f'{self.webtorrent_path} "{self.magnet}" "{self.socket_address}"'
         print(f"Launching webtorrent with {args=}")
         subprocess.Popen(args, shell=True)
 
@@ -27,11 +27,21 @@ class WebtorrentClient:
             data = self.conn.recv(1024)
             if not data:
                 return None
-            # remove trailing `\x0c`
-            decoded = data.decode('utf-8')[:-1]
-            j = json.loads(decoded)
-            if j['type'] == 'href':
-                return j['data'].replace('"', '')
+            # handle data having multiple lines separated by `\x0c`
+            lines = data.split(b'\x0c')
+            for line in lines:
+                if line == b'':
+                    continue
+                decoded = line.decode('utf-8')
+                j = json.loads(decoded)
+                if j['type'] == 'href':
+                    return j['data'].replace('"', '')
+                elif j['type'] == 'hrefs_begin':
+                    filepaths = []
+                elif j['type'] == 'hrefs':
+                    filepaths.append(j['data'].replace('"', ''))
+                elif j['type'] == 'hrefs_end':
+                    return filepaths
 
     def stop(self):
         self.conn.close()
