@@ -494,7 +494,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         if isMacOS():
             node_path = os.path.join(findWorkingDir(), 'node', 'bin', 'node')
-            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-cli', 'bin', 'cmd.js')
+            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-syncplay', 'bin', 'cmd.js')
             self.config['webtorrentPath'] = f'{node_path} {webtorrent_path}'
         else:
             self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
