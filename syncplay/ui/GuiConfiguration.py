@@ -770,7 +770,10 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediabrowseButton.clicked.connect(self.browseMediapath)
 
         magnet_handler = MagnetFromWebPageInConfig(self, self.mediapathTextbox)
-        self.magnetFromURL.clicked.connect(magnet_handler.openMagnetFromURLDialog)
+        # Doesn't automatically call it for some reason
+        self.magnetFromURL.clicked.connect(
+            lambda: magnet_handler.openMagnetFromURLDialog()
+        )
 
         self.executablepathLabel.setObjectName("executable-path")
         self.executablepathCombobox.setObjectName("executable-path")
