@@ -33,7 +33,6 @@ class WebtorrentClient:
             if j['type'] == 'href':
                 return j['data'].replace('"', '')
 
-    # TODO: where to call stop()?
     def stop(self):
         self.conn.close()
         # webtorrent will close on socket close too
