@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath, find_magnet_from_website, findWorkingDir
+from syncplay.utils import resourcespath, posixresourcespath, findWorkingDir
 from syncplay.ui.magnet import MagnetFromWebPageInConfig
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
