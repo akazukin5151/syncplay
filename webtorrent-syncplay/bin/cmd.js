@@ -17,8 +17,14 @@ process.on('SIGTERM', gracefulExit)
 let argv = process.argv.slice(2)
 let magnet = argv[0]
 let socket_address = argv[1]
+
 console.log(`webtorrent: got magnet ${magnet}`)
 console.log(`webtorrent: got socket_address ${socket_address}`)
+
+if (!magnet || !socket_address) {
+    console.log('magnet or socket_address is missing!')
+    process.exit(1)
+}
 
 runDownload(magnet)
 
