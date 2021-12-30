@@ -113,7 +113,7 @@ jobs:
       - name: Update Go
         run: |
           brew update
-          brew unlink go@1.15
+          brew uninstall go@1.15
           brew install go
           go version
 
