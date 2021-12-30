@@ -115,7 +115,6 @@ class ConfigDialog(QtWidgets.QDialog):
                 self.playerargsTextbox.show()
                 self.playerargsLabel.show()
                 self.mediapathTextbox.show()
-                self.mediapathLabel.show()
                 self.mediabrowseButton.show()
                 self.runButton.show()
                 self.saveMoreState(True)
@@ -131,11 +130,9 @@ class ConfigDialog(QtWidgets.QDialog):
                 self.runButton.hide()
                 if self.mediapathTextbox.text() == "":
                     self.mediapathTextbox.hide()
-                    self.mediapathLabel.hide()
                     self.mediabrowseButton.hide()
                 else:
                     self.mediapathTextbox.show()
-                    self.mediapathLabel.show()
                     self.mediabrowseButton.show()
                 self.saveMoreState(False)
                 self.stackedLayout.setCurrentIndex(0)
@@ -497,11 +494,11 @@ class ConfigDialog(QtWidgets.QDialog):
         else:
             self.config['confluencePath'] = str(self.confluencePathCombobox.currentText())
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
-        if self.videoIsMagnetCheckbox.isChecked():
-            if self.mediapathTextbox.text() == '':
+        if self.magnetRadioButton.isChecked():
+            if self.magnetLinkTextEdit.text() == '':
                 self.config['magnet'] = None
             else:
-                self.config['magnet'] = str(self.mediapathTextbox.text())
+                self.config['magnet'] = str(self.magnetLinkTextEdit.text())
         else:
             if self.mediapathTextbox.text() == "":
                 self.config['file'] = None
@@ -544,7 +541,6 @@ class ConfigDialog(QtWidgets.QDialog):
             else:
                 self.mediapathTextbox.setText(dropfilepath)
                 self.mediapathTextbox.show()
-                self.mediapathLabel.show()
                 self.mediabrowseButton.show()
                 if not self.showmoreCheckbox.isChecked():
                     newHeight = self.connectionSettingsGroup.minimumSizeHint().height() + self.mediaplayerSettingsGroup.minimumSizeHint().height() + self.bottomButtonFrame.minimumSizeHint().height() + 3
@@ -627,21 +623,18 @@ class ConfigDialog(QtWidgets.QDialog):
             if hasattr(widget, 'objectName') and widget.objectName() and widget.objectName() in subwidgets:
                 widget.setDisabled(not parentwidget.isChecked())
 
-    def videoIsMagnetCheckboxToggled(self):
-        is_magnet = self.videoIsMagnetCheckbox.isChecked()
-        self.magnetFromURL.setEnabled(is_magnet)
-        if is_magnet:
-            self.magnetFromURL.show()
-            self.mediaplayerSettingsLayout.addWidget(self.magnetFromURL, 3, 3, 1, 1)
-            self.mediaplayerSettingsLayout.removeWidget(self.mediabrowseButton)
-            self.mediabrowseButton.hide()
-            self.mediapathLabel.setText('Magnet link (optional)')
+    def radioToggled(self):
+        is_magnet_selected = self.magnetRadioButton.isChecked()
+        if is_magnet_selected:
+            self.magnetLinkTextEdit.setEnabled(True)
+            self.magnetFromURL.setEnabled(True)
+            self.mediapathTextbox.setEnabled(False)
+            self.mediabrowseButton.setEnabled(False)
         else:
-            self.mediabrowseButton.show()
-            self.mediaplayerSettingsLayout.addWidget(self.mediabrowseButton, 3, 3, 1, 1)
-            self.mediaplayerSettingsLayout.removeWidget(self.magnetFromURL)
-            self.magnetFromURL.hide()
-            self.mediapathLabel.setText(getMessage("media-path-label"))
+            self.magnetLinkTextEdit.setEnabled(False)
+            self.magnetFromURL.setEnabled(False)
+            self.mediapathTextbox.setEnabled(True)
+            self.mediabrowseButton.setEnabled(True)
 
     def addBasicTab(self):
         config = self.config
@@ -740,11 +733,23 @@ class ConfigDialog(QtWidgets.QDialog):
             self.confluencebrowseButton.clicked.connect(
                 lambda: self.browseComboboxPath(self.confluencePathCombobox)
             )
+
+        self.magnetRadioButton = QRadioButton('Magnet link', self)
+        self.magnetRadioButton.toggled.connect(self.radioToggled)
+        self.pathRadioButton = QRadioButton('File path', self)
+        self.pathRadioButton.toggled.connect(self.radioToggled)
+
+        self.magnetLinkTextEdit = QLineEdit(self)
+        self.magnetLinkTextEdit.textChanged.connect(
+            lambda: self.magnetRadioButton.setChecked(True)
+        )
+
         self.magnetFromURL = QtWidgets.QPushButton('From URL', self)
-        # connected later...
-        self.videoIsMagnetCheckbox = QCheckBox("Video is a magnet link")
-        self.videoIsMagnetCheckbox.toggled.connect(self.videoIsMagnetCheckboxToggled)
-        self.videoIsMagnetCheckbox.setChecked(False)
+        magnet_handler = MagnetFromWebPageInConfig(self, self.magnetLinkTextEdit)
+        # Doesn't automatically call it for some reason
+        self.magnetFromURL.clicked.connect(
+            lambda: magnet_handler.openMagnetFromURLDialog()
+        )
 
         self.executableiconImage = QtGui.QImage()
         self.executableiconLabel = QLabel(self)
@@ -763,21 +768,16 @@ class ConfigDialog(QtWidgets.QDialog):
         )
 
         self.mediapathTextbox = QLineEdit(config['file'], self)
-        self.mediapathLabel = QLabel(getMessage("media-path-label"), self)
+        self.mediapathTextbox.textChanged.connect(
+            lambda: self.pathRadioButton.setChecked(True)
+        )
         self.mediabrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
         self.mediabrowseButton.clicked.connect(self.browseMediapath)
-
-        magnet_handler = MagnetFromWebPageInConfig(self, self.mediapathTextbox)
-        # Doesn't automatically call it for some reason
-        self.magnetFromURL.clicked.connect(
-            lambda: magnet_handler.openMagnetFromURLDialog()
-        )
 
         self.executablepathLabel.setObjectName("executable-path")
         self.executablepathCombobox.setObjectName("executable-path")
         self.executablepathCombobox.setMinimumContentsLength(constants.EXECUTABLE_COMBOBOX_MINIMUM_LENGTH)
         self.executablepathCombobox.setSizeAdjustPolicy(QtWidgets.QComboBox.AdjustToMinimumContentsLength)
-        self.mediapathLabel.setObjectName("media-path")
         self.mediapathTextbox.setObjectName(constants.LOAD_SAVE_MANUALLY_MARKER + "media-path")
         self.playerargsLabel.setObjectName("player-arguments")
         self.playerargsTextbox.setObjectName(constants.LOAD_SAVE_MANUALLY_MARKER + "player-arguments")
@@ -791,10 +791,19 @@ class ConfigDialog(QtWidgets.QDialog):
         self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, 1, 1, 1, 1)
         self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, 1, 2, 1, 1)
         self.mediaplayerSettingsLayout.addWidget(self.executablebrowseButton, 1, 3, 1, 1)
-        self.mediaplayerSettingsLayout.addWidget(self.videoIsMagnetCheckbox, 2, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathLabel, 3, 0, 1, 2)
-        self.mediaplayerSettingsLayout.addWidget(self.mediapathTextbox, 3, 2, 1, 1)
-        self.videoIsMagnetCheckboxToggled()
+
+        groupbox = QtWidgets.QGroupBox('Video to play (optional)')
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(self.magnetRadioButton, 2, 0, 1, 1)
+        layout.addWidget(self.magnetLinkTextEdit, 2, 2, 1, 1)
+        layout.addWidget(self.magnetFromURL, 2, 3, 1, 1)
+        layout.addWidget(self.pathRadioButton, 3, 0, 1, 1)
+        layout.addWidget(self.mediapathTextbox, 3, 2, 1, 1)
+        layout.addWidget(self.mediabrowseButton, 3, 3, 1, 1)
+        groupbox.setLayout(layout)
+
+        self.mediaplayerSettingsLayout.addWidget(groupbox, 2, 0, 1, 4)
+
         self.mediaplayerSettingsLayout.addWidget(self.playerargsLabel, 5, 0, 1, 2)
         self.mediaplayerSettingsLayout.addWidget(self.playerargsTextbox, 5, 2, 1, 2)
         self.mediaplayerSettingsLayout.setSpacing(10)
@@ -807,7 +816,6 @@ class ConfigDialog(QtWidgets.QDialog):
             self.serverpassLabel.minimumSizeHint().width(),
             self.defaultroomLabel.minimumSizeHint().width(),
             self.executablepathLabel.minimumSizeHint().width(),
-            self.mediapathLabel.minimumSizeHint().width(),
             self.playerargsLabel.minimumSizeHint().width()
         )
 
@@ -816,7 +824,6 @@ class ConfigDialog(QtWidgets.QDialog):
         self.serverpassLabel.setMinimumWidth(maxWidth+iconWidth)
         self.defaultroomLabel.setMinimumWidth(maxWidth+iconWidth)
         self.executablepathLabel.setMinimumWidth(maxWidth)
-        self.mediapathLabel.setMinimumWidth(maxWidth+iconWidth)
         self.playerargsLabel.setMinimumWidth(maxWidth+iconWidth)
 
         self.showmoreCheckbox = QCheckBox(getMessage("more-title"))
@@ -1518,11 +1525,9 @@ class ConfigDialog(QtWidgets.QDialog):
             self.runButton.hide()
             if self.mediapathTextbox.text() == "":
                 self.mediapathTextbox.hide()
-                self.mediapathLabel.hide()
                 self.mediabrowseButton.hide()
             else:
                 self.mediapathTextbox.show()
-                self.mediapathLabel.show()
                 self.mediabrowseButton.show()
             if isMacOS():
                 newHeight = self.connectionSettingsGroup.minimumSizeHint().height()+self.mediaplayerSettingsGroup.minimumSizeHint().height()+self.bottomButtonFrame.minimumSizeHint().height()+50
