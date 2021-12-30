@@ -1,0 +1,3 @@
+[submodule "vendor/confluence"]
+	path = vendor/confluence
+	url = https://github.com/akazukin5151/confluence
