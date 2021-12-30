@@ -113,7 +113,7 @@ jobs:
       - name: Update Go
         run: |
           brew update
-          brew upgrade go
+          brew install go
           go version
 
       - name: Clone confluence submodule
