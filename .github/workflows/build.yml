@@ -113,7 +113,7 @@ jobs:
       - name: Build webtorrent-syncplay
         run: |
           cd webtorrent-syncplay
-          npm install
+          npm ci --production
           cd ..
 
       - name: Extract node

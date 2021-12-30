@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import WebTorrent from 'webtorrent'
-import ipc from 'node-ipc'
 
 let client
 
@@ -9,13 +8,11 @@ process.on('SIGTERM', gracefulExit)
 
 let argv = process.argv.slice(2)
 const magnet = argv[0]
-const socket_address = argv[1]
 
 console.log(`webtorrent: got magnet ${magnet}`)
-console.log(`webtorrent: got socket_address ${socket_address}`)
 
-if (!magnet || !socket_address) {
-  console.log('magnet or socket_address is missing!')
+if (!magnet) {
+  console.log('magnet is missing!')
   process.exit(1)
 }
 
@@ -90,30 +87,12 @@ async function runDownload (magnet) {
   }
 
   async function onReady () {
-    let href = `http://localhost:${server.address().port}`
-    let emitter
-    if (torrent.files.length > 1) {
-      let allHrefs = []
-      torrent.files.forEach((file, i) =>
-        allHrefs.push(JSON.stringify(`${href}/${i}/${encodeURIComponent(file.name)}`))
-      )
-      emitter = () => {
-        ipc.of.myid.emit('hrefs_begin')
-        allHrefs.forEach(href => ipc.of.myid.emit('hrefs', href))
-        ipc.of.myid.emit('hrefs_end')
-      }
-    } else {
-      href += `/0/${encodeURIComponent(torrent.files[0].name)}`
-      emitter = () => ipc.of.myid.emit('href', href)
-    }
-
-    ipc.connectTo('myid', socket_address, () => {
-      ipc.of.myid.on('connect', emitter)
-      ipc.of.myid.on('disconnect', () => {
-        ipc.disconnect('myid')
-        gracefulExit()
-      })
-    })
+    let base = `http://localhost:${server.address().port}`
+    let allHrefs = []
+    torrent.files.forEach((file, i) =>
+      allHrefs.push(JSON.stringify(`${base}/${i}/${encodeURIComponent(file.name)}`))
+    )
+    console.log(`allHrefs: ${allHrefs}`)
   }
 }
 

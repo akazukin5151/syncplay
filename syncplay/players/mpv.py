@@ -393,20 +393,17 @@ class MpvPlayer(BasePlayer):
     def openMagnet(self, magnet):
         self.webtorrent = WebtorrentClient(self._client._config['webtorrentPath'], magnet)
         self.webtorrent.start()
-        if isinstance(self.webtorrent.filepath, list):
-            self.openFile_inner(self.webtorrent.filepath[0])
-            # using sendLine has race conditions: the queue can be popped off
-            # before the entire list was sent, resulting in a randomly fractured
-            # playlist. This directly accesses the queue, to ensure the list
-            # is intact. It does slightly delay all other commands
-            appends = [
-                ['loadfile', file, 'append']
-                for file in reversed(self.webtorrent.filepath[1:])
-                # reversed because the queue is popped from the back
-            ]
-            self._listener.sendQueue.extend(appends)
-        else:
-            self.openFile_inner(self.webtorrent.filepath)
+        self.openFile_inner(self.webtorrent.filepaths[0])
+        # using sendLine has race conditions: the queue can be popped off
+        # before the entire list was sent, resulting in a randomly fractured
+        # playlist. This directly accesses the queue, to ensure the list
+        # is intact. It does slightly delay all other commands
+        appends = [
+            ['loadfile', file, 'append']
+            for file in reversed(self.webtorrent.filepaths[1:])
+            # reversed because the queue is popped from the back
+        ]
+        self._listener.sendQueue.extend(appends)
 
     def openFile(self, filePath, resetPosition=False):
         if self._client._config['magnet']:
