@@ -10,8 +10,8 @@ class ConfluenceClient:
 
     def start(self):
         self.launch_confluence()
-        self.get_filenames_in_torrent()
-        self.filepaths = self.get_leeching_file()
+        self.torrent_filenames = self.get_filenames_in_torrent()
+        self.filepaths = self.get_leeching_files_for_player()
 
     def launch_confluence(self):
         self.process = subprocess.Popen(self.confluence_path, shell=True)
@@ -26,10 +26,9 @@ class ConfluenceClient:
         html_bytes = res.read()
         html = html_bytes.decode('utf-8')
         j = json.loads(html)
-        self.torrent_filenames = [name for name in j['paths'] if name != '']
+        return [name for name in j['paths'] if name != '']
 
-    # this should be _for_player
-    def get_leeching_file(self):
+    def get_leeching_files_for_player(self):
         base = f'http://localhost:8080/data?magnet={self.magnet}'
         if self.torrent_filenames == []:
             return [base]
