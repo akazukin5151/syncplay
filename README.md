@@ -23,7 +23,7 @@
 
 # Fork
 
-This is a fork of Syncplay that adds support for streaming videos in torrents.
+This is a fork of Syncplay that adds support for streaming videos in torrents. Stream a magnet link in real-time, synchronised with your friends.
 
 For torrenting, only mpv is supported on Linux. mpv and IINA is supported on macOS. Windows is not supported. Non-torrent features are maintained, so this can function as a perfect replacement for upstream Syncplay.
 
@@ -33,7 +33,7 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 
 ## Install from source for Linux
 
-0. Prerequisites: Python and Go >= 1.17
+0. Prerequisites: Go >= 1.17 and Python
 1. Git clone and cd
 2. `git submodule update --init` to clone the confluence fork
 3. `cd vendor/confluence` then `go build -o out/confluence`
@@ -57,9 +57,21 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 5. Everyone in the room should repeat the above steps, with the same magnet link
 6. Another magnet link can be used to replace the current video in `File` -> `Stream magnet link` or `File` -> `Stream magnet from webpage`
 
+### OS support
+
 Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and confluence for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
 
+### Video player support
+
 Focusing on mpv and IINA because that's what we use too. There is no technical barrier to supporting other video players, but I do not have the capacity to test and support all of them. You're welcome to open a PR and maintain your changes.
+
+### Design decisions
+
+Changes in this fork aims to affect upstream contents as minimal as possible. That does not mean always creating new files however, but just in an appropriate manner and not a hacky manner. This is how it can maintain compatibility with upstream Syncplay and is perfectly usable as a drop-in replacement.
+
+Originally, [webtorrent](https://github.com/webtorrent/webtorrent) was used as the backend torrent client. However, being dependent on Javascript was a major problem because it necessitated users to either install Node.js and my script, or bundling node and the script into the `.app`, which ballooned its size to 200 MB. Furthermore, the Javascript ecosystem extensively depends on lots of tiny dependencies. Even after removing every dependency but webtorrent itself, there were still 50 dependencies. 50 packages to read through for security and code reviews.
+
+There was a clear need for an alternative in a statically typed language. [anacrolix/confluence](https://github.com/anacrolix/confluence), based on [anacrolix/torrent](https://github.com/anacrolix/torrent) was actively maintained, well documented, and supports a HTTP server (which was necessary for video players to request specific pieces to respond to user seeks, instead of streaming everything sequentially). Go is not my favourite language, but at least it gives more static guarantees than Javascript and compiles to a smaller and more portable binary. It still dynamically links to system libraries in C, but it has reduced the size of the `.app` back to 100 MB. The fork is located [here](https://github.com/akazukin5151/confluence) and has minor changes to reduce the need of further Python dependencies (it already depends on a bencode library, so might as well decode bencode in Go to a string).
 
 # Syncplay
 ![GitHub Actions build status](https://github.com/Syncplay/syncplay/workflows/Build/badge.svg)
