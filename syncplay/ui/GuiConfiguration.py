@@ -493,9 +493,7 @@ class ConfigDialog(QtWidgets.QDialog):
             self.config['host'] = None
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         if isMacOS():
-            node_path = os.path.join(findWorkingDir(), 'node', 'bin', 'node')
-            webtorrent_path = os.path.join(findWorkingDir(), 'webtorrent-syncplay', 'bin', 'cmd.js')
-            self.config['webtorrentPath'] = f'{node_path} {webtorrent_path}'
+            self.config['webtorrentPath'] = os.path.join(findWorkingDir(), 'confluence')
         else:
             self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))

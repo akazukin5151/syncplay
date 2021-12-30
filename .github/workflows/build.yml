@@ -110,14 +110,11 @@ jobs:
           echo $DYLD_FRAMEWORK_PATH
           # python3 -c 'from distutils.sysconfig import get_config_var; print(get_config_var("LDLIBRARY"))'
 
-      - name: Build webtorrent-syncplay
+      - name: Build confluence
         run: |
-          cd webtorrent-syncplay
-          npm ci --production
-          cd ..
-
-      - name: Extract node
-        run: vendor/unzip_node_mac.sh
+          cd vendor/confluence
+          mkdir out
+          go build -o out/confluence
 
       - name: Build
         run: |

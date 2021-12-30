@@ -277,12 +277,6 @@ class ConfigurationGetter(object):
             if not match:
                 self._config[key] = "#FFFFFF"
 
-        # validate non-required
-        # validate webtorrentPath
-        # Bundled inside app in macOS and does not need to configure this
-        if not isMacOS() and 'webtorrent' not in self._config['webtorrentPath']:
-            raise InvalidConfigValue('Webtorrent path name must include "webtorrent"')
-
         for key in self._required:
             if key == "playerPath":
                 player = None

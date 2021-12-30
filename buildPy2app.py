@@ -17,7 +17,7 @@ DATA_FILES = [
 OPTIONS = {
     'iconfile': 'syncplay/resources/icon.icns',
     'extra_scripts': 'syncplayServer.py',
-    'resources': ['vendor/node', 'webtorrent-syncplay'],
+    'resources': ['vendor/confluence/out/confluence'],
     'includes': {'PySide2.QtCore', 'PySide2.QtUiTools', 'PySide2.QtGui', 'PySide2.QtWidgets', 'certifi', 'cffi'},
     'excludes': {'PySide', 'PySide.QtCore', 'PySide.QtUiTools', 'PySide.QtGui'},
     'qt_plugins': [
