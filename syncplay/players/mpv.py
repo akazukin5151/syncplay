@@ -13,7 +13,7 @@ from syncplay.players.basePlayer import BasePlayer
 from syncplay.utils import isURL, findResourcePath
 from syncplay.utils import isMacOS, isWindows, isASCII
 from syncplay.vendor.python_mpv_jsonipc.python_mpv_jsonipc import MPV
-from syncplay.webtorrent import WebtorrentClient
+from syncplay.confluence import ConfluenceClient
 
 class MpvPlayer(BasePlayer):
     RE_VERSION = re.compile(r'.*mpv (\d+)\.(\d+)\.\d+.*')
@@ -391,16 +391,16 @@ class MpvPlayer(BasePlayer):
         self.lastMPVPositionUpdate = time.time()
 
     def openMagnet(self, magnet):
-        self.webtorrent = WebtorrentClient(self._client._config['webtorrentPath'], magnet)
-        self.webtorrent.start()
-        self.openFile_inner(self.webtorrent.filepaths[0])
+        self.confluence = ConfluenceClient(self._client._config['confluencePath'], magnet)
+        self.confluence.start()
+        self.openFile_inner(self.confluence.filepaths[0])
         # using sendLine has race conditions: the queue can be popped off
         # before the entire list was sent, resulting in a randomly fractured
         # playlist. This directly accesses the queue, to ensure the list
         # is intact. It does slightly delay all other commands
         appends = [
             ['loadfile', file, 'append']
-            for file in reversed(self.webtorrent.filepaths[1:])
+            for file in reversed(self.confluence.filepaths[1:])
             # reversed because the queue is popped from the back
         ]
         self._listener.sendQueue.extend(appends)
@@ -532,7 +532,7 @@ class MpvPlayer(BasePlayer):
         self.reactor = reactor
         self._client = client
         self._set_defaults()
-        self.webtorrent = None
+        self.confluence = None
 
         self._playerIPCHandler = MPV
         self._create_listener(playerPath, filePath, args)

@@ -31,17 +31,18 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 
 1. Download the `.dmg` in the latest successful CI action and install as normal
 
-## Install for Linux
+## Install from source for Linux
 
-1. Clone this repo and install from source as normal
-2. Install node.js
-3. Install `webtorrent-syncplay` in this repo (`npm install -g` could work; see the README in the folder)
-4. Make sure `webtorrent-syncplay` is executable by node itself (eg, `webtorrent-syncplay` and not `node cmd.js`)
+0. Prerequisites: Python and Go >= 1.17
+1. Git clone and cd
+2. `git submodule update --init` to clone the confluence fork
+3. `cd vendor/confluence` then `go build -o out/confluence`
+4. Install syncplay however you want. For development, use `pip install -e .`. Make sure to disable anaconda.
 
 ## First time setup
 
 1. Open Syncplay
-2. (Linux only) Fill the path to the webtorrent script you installed above
+2. (Linux only) Fill the path to the confluence binary you installed above (eg, `/some/path/here/syncplay/vendor/confluence/out/confluence`)
 3. Use a compatible media player
     - Linux: mpv only
     - macOS: IINA or mpv
@@ -56,7 +57,7 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 5. Everyone in the room should repeat the above steps, with the same magnet link
 6. Another magnet link can be used to replace the current video in `File` -> `Stream magnet link` or `File` -> `Stream magnet from webpage`
 
-Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and webtorrent for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
+Focusing on Linux and macOS for now because I use Linux and my friend uses a Mac. I have no problem in entering a few commands on the terminal, and I suspect most Linux users feel the same, so there's not much benefit for the tight bundling of node and confluence for Linux. Torrenting for Windows won't be supported until we have a need (or you submit a PR)
 
 Focusing on mpv and IINA because that's what we use too. There is no technical barrier to supporting other video players, but I do not have the capacity to test and support all of them. You're welcome to open a PR and maintain your changes.
 

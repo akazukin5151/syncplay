@@ -888,8 +888,8 @@ class SyncplayClient(object):
         self._running = False
         self.destroyProtocol()
         if self._player:
-            if self._player.webtorrent:
-                self._player.webtorrent.stop()
+            if self._player.confluence:
+                self._player.confluence.stop()
             self._player.drop()
         if self.ui:
             self.ui.drop()

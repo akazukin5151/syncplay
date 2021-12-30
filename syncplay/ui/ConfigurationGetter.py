@@ -31,7 +31,7 @@ class ConfigurationGetter(object):
             "room": "",
             "roomList": [],
             "password": None,
-            "webtorrentPath": None,
+            "confluencePath": None,
             "playerPath": None,
             "perPlayerArguments": None,
             "mediaSearchDirectories": None,
@@ -187,7 +187,7 @@ class ConfigurationGetter(object):
         self._iniStructure = {
             "server_data": ["host", "port", "password"],
             "client_settings": [
-                "name", "room", "roomList", "webtorrentPath",
+                "name", "room", "roomList", "confluencePath",
                 "playerPath", "perPlayerArguments",
                 "slowdownThreshold", "rewindThreshold", "fastforwardThreshold",
                 "slowOnDesync", "rewindOnDesync",

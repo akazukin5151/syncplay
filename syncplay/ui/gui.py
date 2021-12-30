@@ -1329,7 +1329,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @needsClient
     def promptForMagnetURL(self):
         streamURL, ok = QtWidgets.QInputDialog.getText(
-            self, "Stream magnet link with webtorrent",
+            self, "Stream magnet link",
             "Magnet", QtWidgets.QLineEdit.Normal, "")
         if ok and streamURL != '':
             self._syncplayClient.openMagnet(streamURL, resetPosition=False, fromUser=True)

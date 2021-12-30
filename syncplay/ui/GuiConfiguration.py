@@ -493,9 +493,9 @@ class ConfigDialog(QtWidgets.QDialog):
             self.config['host'] = None
         self.config['playerPath'] = str(self.safenormcaseandpath(self.executablepathCombobox.currentText()))
         if isMacOS():
-            self.config['webtorrentPath'] = os.path.join(findWorkingDir(), 'confluence')
+            self.config['confluencePath'] = os.path.join(findWorkingDir(), 'confluence')
         else:
-            self.config['webtorrentPath'] = str(self.webtorrentPathCombobox.currentText())
+            self.config['confluencePath'] = str(self.confluencePathCombobox.currentText())
         self.config['language'] = str(self.languageCombobox.itemData(self.languageCombobox.currentIndex()))
         if self.videoIsMagnetCheckbox.isChecked():
             if self.mediapathTextbox.text() == '':
@@ -732,13 +732,13 @@ class ConfigDialog(QtWidgets.QDialog):
 
         # XXX: no translation for these labels
         if not isMacOS():
-            self.webtorrentPathCombobox = QtWidgets.QComboBox(self)
-            self.webtorrentPathCombobox.setEditable(True)
-            self.webtorrentPathCombobox.setEditText(config['webtorrentPath'])
-            self.webtorrentPathLabel = QLabel('Path to webtorrent:', self)
-            self.webtorrentbrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
-            self.webtorrentbrowseButton.clicked.connect(
-                lambda: self.browseComboboxPath(self.webtorrentPathCombobox)
+            self.confluencePathCombobox = QtWidgets.QComboBox(self)
+            self.confluencePathCombobox.setEditable(True)
+            self.confluencePathCombobox.setEditText(config['confluencePath'])
+            self.confluencePathLabel = QLabel('Path to confluence:', self)
+            self.confluencebrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
+            self.confluencebrowseButton.clicked.connect(
+                lambda: self.browseComboboxPath(self.confluencePathCombobox)
             )
         self.magnetFromURL = QtWidgets.QPushButton('From URL', self)
         # connected later...
@@ -784,9 +784,9 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.mediaplayerSettingsLayout = QtWidgets.QGridLayout()
         if not isMacOS():
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathCombobox, 0, 2, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentPathLabel, 0, 0, 1, 1)
-            self.mediaplayerSettingsLayout.addWidget(self.webtorrentbrowseButton, 0, 3, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.confluencePathCombobox, 0, 2, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.confluencePathLabel, 0, 0, 1, 1)
+            self.mediaplayerSettingsLayout.addWidget(self.confluencebrowseButton, 0, 3, 1, 1)
         self.mediaplayerSettingsLayout.addWidget(self.executablepathLabel, 1, 0, 1, 1)
         self.mediaplayerSettingsLayout.addWidget(self.executableiconLabel, 1, 1, 1, 1)
         self.mediaplayerSettingsLayout.addWidget(self.executablepathCombobox, 1, 2, 1, 1)

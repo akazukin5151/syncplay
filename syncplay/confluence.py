@@ -3,18 +3,18 @@ import time
 import subprocess
 from urllib.request import urlopen, Request
 
-class WebtorrentClient:
-    def __init__(self, webtorrent_path, magnet):
-        self.webtorrent_path = webtorrent_path
+class ConfluenceClient:
+    def __init__(self, confluence_path, magnet):
+        self.confluence_path = confluence_path
         self.magnet = magnet.replace('\n', '')
 
     def start(self):
-        self.launch_webtorrent()
+        self.launch_confluence()
         self.get_filenames_in_torrent()
         self.filepaths = self.get_leeching_file()
 
-    def launch_webtorrent(self):
-        self.process = subprocess.Popen(self.webtorrent_path, shell=True)
+    def launch_confluence(self):
+        self.process = subprocess.Popen(self.confluence_path, shell=True)
         # Needs some time for the HTTP server to start
         time.sleep(2)
 
