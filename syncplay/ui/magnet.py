@@ -15,6 +15,10 @@ class MagnetFromWebPage(ABC):
         box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Cancel)
         box.rejected.connect(self.magnetFromURLDialog.reject)
         box.accepted.connect(self.magnetFromURLDialog.accept)
+        warning = QLabel(
+            'Warning: This method is very crude! '
+            'It is your responsibility to check the magnet is correct!'
+        )
         urlLabel = QLabel('Website URL:')
         self.urlEditor = QLineEdit(self.parent)
         encodingLabel = QLabel('Encodings to try:')
@@ -29,14 +33,15 @@ class MagnetFromWebPage(ABC):
         self.makeSaveButton()
         box.addButton(self.saveMagnetButton, QtWidgets.QDialogButtonBox.AcceptRole)
 
-        layout.addWidget(urlLabel, 0, 0)
-        layout.addWidget(self.urlEditor, 0, 1)
-        layout.addWidget(encodingLabel, 1, 0)
-        layout.addWidget(self.encodingEditor, 1, 1)
-        layout.addWidget(self.fetchButton, 2, 1)
-        layout.addWidget(magnetDisplayLabel, 3, 0)
-        layout.addWidget(self.magnetDisplay, 3, 1)
-        layout.addWidget(box, 4, 0, 1, 2)
+        layout.addWidget(warning, 0, 0, 1, 2)
+        layout.addWidget(urlLabel, 1, 0)
+        layout.addWidget(self.urlEditor, 1, 1)
+        layout.addWidget(encodingLabel, 2, 0)
+        layout.addWidget(self.encodingEditor, 2, 1)
+        layout.addWidget(self.fetchButton, 3, 1)
+        layout.addWidget(magnetDisplayLabel, 4, 0)
+        layout.addWidget(self.magnetDisplay, 4, 1)
+        layout.addWidget(box, 5, 0, 1, 2)
         self.magnetFromURLDialog.setLayout(layout)
 
         self.magnetFromURLDialog.exec()
