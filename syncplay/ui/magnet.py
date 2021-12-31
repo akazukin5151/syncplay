@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from syncplay.utils import find_magnet_from_website
 
 from syncplay.vendor.Qt import QtWidgets
-from syncplay.vendor.Qt.QtWidgets import QLineEdit, QLabel, QPlainTextEdit
+from syncplay.vendor.Qt.QtWidgets import QLineEdit, QLabel, QPlainTextEdit, QPushButton
 
 class MagnetFromWebPage(ABC):
     def __init__(self, parent):
@@ -46,16 +46,55 @@ class MagnetFromWebPage(ABC):
         encodings = self.encodingEditor.text().split(',')
         if url == '' or encodings == []:
             return
-        try:
-            magnet = find_magnet_from_website(url, encodings)
-        except Exception as e:
-            self.fetchButton.setEnabled(True)
-            return QtWidgets.QMessageBox.critical(
-                self, 'Cannot fetch magnet', str(e)
-            )
-        self.fetchButton.setEnabled(True)
+        (self.desc, self.x, self.e) = find_magnet_from_website(url, encodings)
+        if self.e is not None:
+            msgbox = QtWidgets.QMessageBox(self.parent)
+            msgbox.resize(600, 600)
+            msgbox.setText(str(self.e))
+            msgbox.setIcon(QtWidgets.QMessageBox.Critical)
+
+            if self.desc == 'url':
+                msgbox.setInformativeText('\nProbably an error in opening the url')
+                msgbox.setDetailedText('Got url: ' + self.x)
+            elif self.desc == 'html_bytes':
+                msgbox.setInformativeText("\nProbably couldn't parse with given encodings")
+                msgbox.setDetailedText('Scraped html in bytes:\n' + str(self.x))
+            elif self.desc == 'html':
+                msgbox.setInformativeText("\nProbably couldn't find a magnet link in the page")
+                msgbox.setDetailedText('Decoded html:\n' + self.x)
+            else:
+                msgbox.setInformativeText('\nSuper mysterious error')
+                msgbox.setDetailedText(self.x)
+
+            bugReportButton = QPushButton('Send a bug report')
+            bugReportButton.clicked.connect(self.sendBugReport)
+            msgbox.addButton(bugReportButton, QtWidgets.QMessageBox.ActionRole)
+            msgbox.setStandardButtons(QtWidgets.QMessageBox.Cancel)
+
+            return msgbox.exec()
+        magnet = self.x
         self.magnetDisplay.setPlainText(magnet)
         self.saveMagnetButton.setEnabled(True)
+
+    def sendBugReport(self):
+        msgbox = QtWidgets.QDialog(self.parent)
+        layout = QtWidgets.QGridLayout()
+        label = QLabel(
+            'Create a new issue in the issue tracker below and paste in the details'
+        )
+        link = QLabel(
+            'Issue tracker: <a href="https://www.github.com/akazukin5151/syncplay/issues/new/">https://www.github.com/akazukin5151/syncplay/issues/new/</a>'
+        )
+        details = QPlainTextEdit()
+        details.setReadOnly(True)
+        details.setPlainText(f'{self.desc=}\n{self.x=}\n{self.e=}')
+        layout.addWidget(label)
+        layout.addWidget(link)
+        layout.addWidget(details)
+        msgbox.setLayout(layout)
+        box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        box.accepted.connect(msgbox.accept)
+        msgbox.exec()
 
     @abstractmethod
     def makeSaveButton(self):

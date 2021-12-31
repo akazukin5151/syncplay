@@ -518,17 +518,31 @@ def parse_with_encodings(html_bytes: bytes, encodings: 'List[str]') -> str:
             raise
         return parse_with_encodings(html_bytes, encodings[1:])
 
-def find_magnet_from_website(url: str, encodings: 'List[str]') -> str:
-    page = urllib.request.urlopen(url)
-    html_bytes = page.read()
+def find_magnet_from_website(
+    url: str, encodings: 'List[str]'
+) -> (str, 'str | bytes', 'Optional[Exception]'):
+    try:
+        page = urllib.request.urlopen(url)
+        html_bytes = page.read()
+    except Exception as e:
+        # Probably an error in opening the url
+        return ('url', url, e)
 
-    html = parse_with_encodings(html_bytes, encodings)
+    try:
+        html = parse_with_encodings(html_bytes, encodings)
+    except Exception as e:
+        # Probably couldn't parse with given encodings
+        return ('html_bytes', html_bytes, e)
 
-    start = html.find('<a href="magnet')
-    end = start + html[start:].find('>')
-    block = html[start:end]
+    try:
+        start = html.find('<a href="magnet')
+        end = start + html[start:].find('>')
+        block = html[start:end]
 
-    start = block.find('"') + 1
-    end = start + block[start:].find('"')
-    magnet = block[start:end]
-    return magnet
+        start = block.find('"') + 1
+        end = start + block[start:].find('"')
+        magnet = block[start:end]
+    except Exception as e:
+        # Probably an index out of bounds error
+        return ('html', html, e)
+    return ('magnet', magnet, None)
