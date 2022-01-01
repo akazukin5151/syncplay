@@ -35,7 +35,7 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 
 1. Download the AppImage from the latest successful CI action
 
-Note: AppImage doesn't work for Fedora due to broken dynamic linking of PySide2 by conda-forge, see [upstream issue 355](github.com/Syncplay/syncplay/issues/355)
+Note: AppImage doesn't work for Fedora due to broken dynamic linking of PySide2 by conda-forge, see [upstream issue 355](https://www.github.com/Syncplay/syncplay/issues/355)
 
 ## Install from source
 
