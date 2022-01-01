@@ -31,13 +31,17 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 
 1. Download the `.dmg` in the latest successful CI action and install as normal
 
-## Install from source for Linux
+## Install for Linux from AppImage
+
+1. Download the AppImage from the latest successful CI action
+
+## Install from source
 
 0. Prerequisites: Go >= 1.17 and Python
 1. Git clone and cd
 2. `git submodule update --init` to clone the confluence fork
 3. `cd vendor/confluence` then `go build -o out/confluence`
-4. Install syncplay however you want. For development, use `pip install -e .`. Make sure to disable anaconda.
+4. Install syncplay however you want. For development, you could use `pip install -e .`. Make sure to disable anaconda before running that.
 
 ## First time setup
 

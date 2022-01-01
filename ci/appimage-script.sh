@@ -100,6 +100,10 @@ mv pl.syncplay.syncplay.appdata.xml AppDir/usr/share/metainfo/
 # move and rename .desktop file
 cp "$REPO_ROOT"/syncplay/resources/syncplay.desktop ./pl.syncplay.syncplay.desktop
 
+# Move compiled confluence binary (compiled in previous step in CI)
+mkdir -p AppDir/usr/bin
+cp "$REPO_ROOT"/vendor/confluence/out/confluence AppDir/usr/bin/confluence
+
 #export CONDA_PACKAGES="Pillow"
 export PIP_REQUIREMENTS="."
 export PIP_WORKDIR="$REPO_ROOT"

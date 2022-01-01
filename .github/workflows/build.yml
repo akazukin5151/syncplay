@@ -151,40 +151,61 @@ jobs:
           path: |
             dist_actions/Syncplay_${{ env.VER }}.dmg
 
-#  appimage:
-#    name: Build AppImage
-#    runs-on: ubuntu-18.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Install dependencies
-#        run: |
-#          sudo apt-get install --no-install-recommends \
-#            libglib2.0-0 \
-#            libxkbcommon-x11-0 \
-#            libxcb1 \
-#          ;
-#
-#      - name: Build
-#        run: ci/appimage-script.sh
-#
-#      - name: Prepare for deployment
-#        run: |
-#          ls -al
-#          export VER="$(cat syncplay/__init__.py | awk '/version/ {gsub("\047", "", $3); print $NF}')"
-#          echo "VER=$VER" >> $GITHUB_ENV
-#          mkdir dist_actions
-#          ci/appimage-deploy.sh
-#          ls -al dist_actions
-#
-#      - name: Deploy
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: Syncplay-${{ env.VER }}-x86_64.AppImage
-#          path: |
-#            dist_actions/Syncplay-${{ env.VER }}-x86_64.AppImage
-#
+  appimage:
+    name: Build AppImage
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install --no-install-recommends \
+            libglib2.0-0 \
+            libxkbcommon-x11-0 \
+            libxcb1 \
+          ;
+
+      - name: Update Go
+        run: |
+          sudo apt-get update
+          sudo apt-get remove golang || sudo apt-get remove go
+          wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local/ -xzf go1.17.5.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          source $HOME/.profile
+          source /etc/profile
+          /usr/local/go/bin/go version
+
+      - name: Clone confluence submodule
+        run: git submodule update --init
+
+      - name: Build confluence
+        run: |
+          cd vendor/confluence
+          mkdir out
+          /usr/local/go/bin/go build -o out/confluence
+
+      - name: Build appimage
+        run: ci/appimage-script.sh
+
+      - name: Prepare for deployment
+        run: |
+          ls -al
+          export VER="$(cat syncplay/__init__.py | awk '/version/ {gsub("\047", "", $3); print $NF}')"
+          echo "VER=$VER" >> $GITHUB_ENV
+          mkdir dist_actions
+          ci/appimage-deploy.sh
+          ls -al dist_actions
+
+      - name: Deploy
+        uses: actions/upload-artifact@v2
+        with:
+          name: Syncplay-${{ env.VER }}-x86_64.AppImage
+          path: |
+            dist_actions/Syncplay-${{ env.VER }}-x86_64.AppImage
+
 #  deb:
 #    name: Build Debian package
 #    runs-on: ubuntu-20.04
