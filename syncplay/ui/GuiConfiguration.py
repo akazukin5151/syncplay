@@ -978,7 +978,7 @@ class ConfigDialog(QtWidgets.QDialog):
         self.torrentGroup = QtWidgets.QGroupBox('Torrent settings')
         self.torrentLayout = QtWidgets.QGridLayout()
         self.torrentGroup.setLayout(self.torrentLayout)
-        self.torrentDownloadPath = QLineEdit(self.config['torrentDownloadPath'])
+        self.torrentDownloadPath = QLineEdit()
         self.torrentDownloadLabel = QLabel('Torrent download path')
         self.torrentPathBrowse = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
         self.torrentPathBrowse.clicked.connect(self.torrentPathBrowseClicked)
