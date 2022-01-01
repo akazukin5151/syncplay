@@ -4,7 +4,7 @@ import subprocess
 from urllib.request import urlopen, Request
 
 class ConfluenceClient:
-    def __init__(self, confluence_path, magnet, download_dir):
+    def __init__(self, confluence_path, download_dir, magnet):
         self.confluence_path = confluence_path
         self.download_dir = download_dir
         self.magnet = magnet.replace('\n', '')
