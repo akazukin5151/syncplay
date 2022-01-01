@@ -48,11 +48,15 @@ Note: AppImage doesn't work for Fedora due to broken dynamic linking of PySide2 
 ## First time setup
 
 1. Open Syncplay
-2. (Linux only) Fill the path to the confluence binary you installed above (eg, `/some/path/here/syncplay/vendor/confluence/out/confluence`)
+2. (Linux from source only) Fill the path to the confluence binary you installed above (eg, `/some/path/here/syncplay/vendor/confluence/out/confluence`)
+    - For AppImages on Linux, the path will already be pre-filled with the bundled confluence executable, which starts with `/tmp/.appimageSynp1234/...`
 3. Use a compatible media player
     - Linux: mpv only
     - macOS: IINA or mpv
 4. Optionally, check "show more settings" and go to the Misc Tab, and set a torrent download path. This is where torrents will be downloaded to.
+    - Note: if you do not set this option, confluence will download `.torrent` files to a `torrents/` dir and pieces to a `filecache/` dir.
+    - On Linux, the two directories are in the dir you launched syncplay (probably the home directory)
+    - On macOS, the two directories are *inside* the `Syncplay.app`, in `/Applications/Syncplay.app/Contents/Resources/`
 
 ## Usage
 

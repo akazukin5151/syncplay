@@ -730,7 +730,12 @@ class ConfigDialog(QtWidgets.QDialog):
         if not isMacOS():
             self.confluencePathCombobox = QtWidgets.QComboBox(self)
             self.confluencePathCombobox.setEditable(True)
-            self.confluencePathCombobox.setEditText(config['confluencePath'])
+            # this is an AppImage
+            if '/tmp/' in resourcespath:
+                editText = resourcespath + 'confluence'
+            else:
+                editText = config['confluencePath']
+            self.confluencePathCombobox.setEditText(editText)
             self.confluencePathLabel = QLabel('Path to confluence:', self)
             self.confluencebrowseButton = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
             self.confluencebrowseButton.clicked.connect(

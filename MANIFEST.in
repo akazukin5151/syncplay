@@ -6,3 +6,4 @@ include syncplay/resources/*.lua
 include syncplay/resources/*.rtf
 include syncplay/resources/*.txt
 include syncplay/resources/lua/intf/*.lua
+include syncplay/resources/confluence

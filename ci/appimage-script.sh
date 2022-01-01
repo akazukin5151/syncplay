@@ -33,18 +33,21 @@ fi
 
 BUILD_DIR=$(mktemp -d -p "$TEMP_BASE" appimagelint-build-XXXXXX)
 
-cleanup () {
-    if [ -d "$BUILD_DIR" ]; then
-        rm -rf "$BUILD_DIR"
-    fi
-}
-
-trap cleanup EXIT
-
 # store repo root as variable
 REPO_ROOT=$(readlink -f $(dirname $(dirname "$0")))
 #REPO_ROOT="."
 OLD_CWD=$(readlink -f .)
+
+cleanup () {
+    if [ -d "$BUILD_DIR" ]; then
+        rm -rf "$BUILD_DIR"
+    fi
+    if [ -f "$REPO_ROOT"/syncplay/resources/confluence ]; then
+        rm -f "$REPO_ROOT"/syncplay/resources/confluence
+    fi
+}
+
+trap cleanup EXIT
 
 pushd "$BUILD_DIR"
 
@@ -101,8 +104,7 @@ mv pl.syncplay.syncplay.appdata.xml AppDir/usr/share/metainfo/
 cp "$REPO_ROOT"/syncplay/resources/syncplay.desktop ./pl.syncplay.syncplay.desktop
 
 # Move compiled confluence binary (compiled in previous step in CI)
-mkdir -p AppDir/usr/bin
-cp "$REPO_ROOT"/vendor/confluence/out/confluence AppDir/usr/bin/confluence
+cp "$REPO_ROOT"/vendor/confluence/out/confluence "$REPO_ROOT"/syncplay/resources
 
 #export CONDA_PACKAGES="Pillow"
 export PIP_REQUIREMENTS="."
