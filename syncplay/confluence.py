@@ -4,8 +4,9 @@ import subprocess
 from urllib.request import urlopen, Request
 
 class ConfluenceClient:
-    def __init__(self, confluence_path, magnet):
+    def __init__(self, confluence_path, magnet, download_dir):
         self.confluence_path = confluence_path
+        self.download_dir = download_dir
         self.magnet = magnet.replace('\n', '')
 
     def start(self):
@@ -14,7 +15,10 @@ class ConfluenceClient:
         self.filepaths = self.get_leeching_files_for_player()
 
     def launch_confluence(self):
-        self.process = subprocess.Popen(self.confluence_path, shell=True)
+        args = f'{self.confluence_path}'
+        if self.download_dir is not None:
+            args += f' -fileDir="{self.download_dir}"'
+        self.process = subprocess.Popen(args, shell=True)
         # Needs some time for the HTTP server to start
         time.sleep(2)
 

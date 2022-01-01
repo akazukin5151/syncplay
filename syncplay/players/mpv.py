@@ -391,7 +391,11 @@ class MpvPlayer(BasePlayer):
         self.lastMPVPositionUpdate = time.time()
 
     def openMagnet(self, magnet):
-        self.confluence = ConfluenceClient(self._client._config['confluencePath'], magnet)
+        self.confluence = ConfluenceClient(
+            self._client._config['confluencePath'],
+            self._client._config['torrentDownloadPath'],
+            magnet
+        )
         self.confluence.start()
         self.openFile_inner(self.confluence.filepaths[0])
         # using sendLine has race conditions: the queue can be popped off

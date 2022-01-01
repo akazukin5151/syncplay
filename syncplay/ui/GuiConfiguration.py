@@ -478,6 +478,9 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.config["perPlayerArguments"] = self.perPlayerArgs
         self.config["mediaSearchDirectories"] = utils.convertMultilineStringToList(self.mediasearchTextEdit.toPlainText())
+        self.config['torrentDownloadPath'] = None
+        if self.torrentDownloadPath.text() is not None:
+            self.config['torrentDownloadPath'] = self.torrentDownloadPath.text()
         self.config["trustedDomains"] = utils.convertMultilineStringToList(self.trusteddomainsTextEdit.toPlainText())
 
         if self.serverpassTextbox.isEnabled():
@@ -970,6 +973,19 @@ class ConfigDialog(QtWidgets.QDialog):
         self.autosaveJoinsToListCheckbox.setObjectName("autosaveJoinsToList")
         self.internalSettingsLayout.addWidget(self.autosaveJoinsToListCheckbox)
 
+        # Torrent download path
+
+        self.torrentGroup = QtWidgets.QGroupBox('Torrent settings')
+        self.torrentLayout = QtWidgets.QGridLayout()
+        self.torrentGroup.setLayout(self.torrentLayout)
+        self.torrentDownloadPath = QLineEdit(self.config['torrentDownloadPath'])
+        self.torrentDownloadLabel = QLabel('Torrent download path')
+        self.torrentPathBrowse = QtWidgets.QPushButton(QtGui.QIcon(resourcespath + 'folder_explore.png'), getMessage("browse-label"))
+        self.torrentPathBrowse.clicked.connect(self.torrentPathBrowseClicked)
+        self.torrentLayout.addWidget(self.torrentDownloadLabel, 0, 0)
+        self.torrentLayout.addWidget(self.torrentDownloadPath, 0, 1)
+        self.torrentLayout.addWidget(self.torrentPathBrowse, 0, 2)
+
         ## Media path directories
 
         self.mediasearchSettingsGroup = QtWidgets.QGroupBox(getMessage("syncplay-mediasearchdirectories-title"))
@@ -984,9 +1000,16 @@ class ConfigDialog(QtWidgets.QDialog):
 
         self.miscLayout.addWidget(self.coreSettingsGroup)
         self.miscLayout.addWidget(self.internalSettingsGroup)
+        self.miscLayout.addWidget(self.torrentGroup)
         self.miscLayout.addWidget(self.mediasearchSettingsGroup)
         self.miscLayout.setAlignment(Qt.AlignTop)
         self.stackedLayout.addWidget(self.miscFrame)
+
+    def torrentPathBrowseClicked(self):
+        dir_ = QtWidgets.QFileDialog.getExistingDirectory(
+            self, 'Select a directory', None, QtWidgets.QFileDialog.ShowDirsOnly
+        )
+        self.torrentDownloadPath.setText(dir_)
 
     def addSyncTab(self):
         self.syncSettingsFrame = QtWidgets.QFrame()

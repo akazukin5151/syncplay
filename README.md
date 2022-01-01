@@ -46,6 +46,7 @@ For torrenting, only mpv is supported on Linux. mpv and IINA is supported on mac
 3. Use a compatible media player
     - Linux: mpv only
     - macOS: IINA or mpv
+4. Optionally, check "show more settings" and go to the Misc Tab, and set a torrent download path. This is where torrents will be downloaded to.
 
 ## Usage
 

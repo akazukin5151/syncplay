@@ -195,7 +195,7 @@ class ConfigurationGetter(object):
                 "forceGuiPrompt", "filenamePrivacyMode",
                 "filesizePrivacyMode", "unpauseAction",
                 "pauseOnLeave", "readyAtStart", "autoplayMinUsers",
-                "autoplayInitialState", "mediaSearchDirectories",
+                "autoplayInitialState", "mediaSearchDirectories", 'torrentDownloadPath',
                 "sharedPlaylistEnabled", "loopAtEndOfPlaylist",
                 "loopSingleFiles",
                 "autoplayRequireSameFilenames",
