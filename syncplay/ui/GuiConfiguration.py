@@ -9,7 +9,7 @@ from syncplay import utils
 from syncplay.messages import getMessage, getLanguages, setLanguage, getInitialLanguage
 from syncplay.players.playerFactory import PlayerFactory
 from syncplay.utils import isBSD, isLinux, isMacOS, isWindows
-from syncplay.utils import resourcespath, posixresourcespath, findWorkingDir
+from syncplay.utils import resourcespath, posixresourcespath, findWorkingDir, playerPathExists
 from syncplay.ui.magnet import MagnetFromWebPageInConfig
 
 from syncplay.vendor.Qt import QtCore, QtWidgets, QtGui, __binding__, IsPySide, IsPySide2
@@ -208,12 +208,14 @@ class ConfigDialog(QtWidgets.QDialog):
                 self.executablepathCombobox.addItem(foundpath)
 
             else:
-                if not os.path.isfile(playerpath):
+                if not playerPathExists(playerpath):
                     expandedpath = PlayerFactory().getExpandedPlayerPathByPath(playerpath)
-                    if expandedpath is not None and os.path.isfile(expandedpath):
+                    if expandedpath is not None and playerPathExists(expandedpath):
                         playerpath = expandedpath
+                    elif "mpvnet.exe" in playerpath and playerPathExists(playerpath.replace("mpvnet.exe","mpvnet.com")):
+                        self.executablepathCombobox.addItem(playerpath)
 
-                if os.path.isfile(playerpath):
+                if playerPathExists(playerpath):
                     foundpath = playerpath
                     self.executablepathCombobox.addItem(foundpath)
 
@@ -224,7 +226,7 @@ class ConfigDialog(QtWidgets.QDialog):
                 if path != playerpath:
                     self.executablepathCombobox.addItem(path)
 
-            elif os.path.isfile(path) and os.path.normcase(os.path.normpath(path)) != os.path.normcase(os.path.normpath(foundpath)):
+            elif playerPathExists(path) and os.path.normcase(os.path.normpath(path)) != os.path.normcase(os.path.normpath(foundpath)):
                 self.executablepathCombobox.addItem(path)
                 if foundpath == "":
                     foundpath = path
